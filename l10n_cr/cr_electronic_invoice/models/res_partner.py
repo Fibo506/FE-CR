@@ -34,6 +34,8 @@ class PartnerElectronic(models.Model):
     )
     inscribed = fields.Boolean(
         string="Inscribed",
+        readonly=True,
+        copy=False,
         default=False
     )
 
