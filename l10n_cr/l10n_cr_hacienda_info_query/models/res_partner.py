@@ -89,8 +89,7 @@ class ResPartner(models.Model):
                         self.name = contenido.get('nombre')
                         _logger.info('Estado: %s' % contenido.get('situacion', {}).get('estado'))
 
-                        if contenido.get('situacion', {}).get('estado') == 'Inscrito':  # Nota la "I" mayúscula
-                            self.inscribed = True
+                        self.inscribed = True if contenido.get('situacion', {}).get('estado') == 'Inscrito' else False  # Nota la "I" mayúscula
                         if 'identification_id' in self._fields:
                             clasificacion = contenido.get('tipoIdentificacion')
 
