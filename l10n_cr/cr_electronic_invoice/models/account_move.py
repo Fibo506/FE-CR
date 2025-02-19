@@ -493,7 +493,7 @@ class AccountInvoiceElectronic(models.Model):
 
             if tipo_documento == 'FE' and (not self.partner_id.vat
                                            or self.partner_id.identification_id.code == '05'
-                                           or self.partner_id.incribed == False):
+                                           or self.partner_id.inscribed == False):
                 tipo_documento = 'TE'
                 self.tipo_documento = 'TE'
             if tipo_documento == 'FE':
