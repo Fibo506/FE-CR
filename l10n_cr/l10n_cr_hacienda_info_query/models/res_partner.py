@@ -87,9 +87,10 @@ class ResPartner(models.Model):
 
                     if contenido.get('nombre') and contenido.get('tipoIdentificacion'):
                         self.name = contenido.get('nombre')
+                        _logger.info('Estado: %s' % contenido.get('situacion', {}).get('estado'))
+                        self.inscribed = True if contenido.get('situacion', {}).get('estado') == 'Inscrito' else False  # Nota la "I" mayúscula
                         if 'identification_id' in self._fields:
                             clasificacion = contenido.get('tipoIdentificacion')
-
                             self.identification_id = self.env['identification.type'].search(
                                 [
                                     ('code', '=', clasificacion)

@@ -15,6 +15,7 @@
 
             <field name="vat" position="after">
                 <field name="identification_id"/>
+                <field name="inscribed"/>
                 <field name="supplier_rank" invisible="1" readonly="1"/>
             </field>
 
@@ -51,8 +52,8 @@
                     </group>
                     <field name="allowed_cabys_ids">
                         <tree create="false" delete="false" editable="bottom">
-                            <field name="parent_id" invisible="1" />
-                            <field name="name" />
+                            <field name="parent_id" invisible="1"/>
+                            <field name="name"/>
                         </tree>
                     </field>
                 </page>
