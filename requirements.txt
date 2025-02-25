@@ -19,3 +19,4 @@ phonenumbers
 vatnumber
 xlsxwriter
 lxml
+xldr==1.2.0
