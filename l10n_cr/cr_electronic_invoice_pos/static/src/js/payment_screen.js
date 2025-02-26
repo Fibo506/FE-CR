@@ -4,6 +4,9 @@ import { patch } from "@web/core/utils/patch";
 import { PaymentScreen } from "@point_of_sale/app/screens/payment_screen/payment_screen";
 
 patch(PaymentScreen.prototype, {
+    shouldDownloadInvoice() {
+        return false;
+    },
     async validateOrder(isForceValidate) {
          // Get the selected order
         const order = this.pos.get_order();
@@ -35,5 +38,6 @@ patch(PaymentScreen.prototype, {
             }
         }
         await super.validateOrder(...arguments);
-    }
+    },
+    
 });
