@@ -89,7 +89,7 @@ class ResPartner(models.Model):
                         self.name = contenido.get('nombre')
                         _logger.info('Estado: %s' % contenido.get('situacion', {}).get('estado'))
 
-                        self.inscribed = True if contenido.get('situacion', {}).get('estado') == 'Inscrito' else False  # Nota la "I" mayúscula
+                        self.inscribed = True if contenido.get('situacion', {}).get('estado') == 'Inscrito' or contenido.get('situacion', {}).get('estado') == 'Inscrito de Oficio'  else False  # Nota la "I" mayúscula
                         if 'identification_id' in self._fields:
                             clasificacion = contenido.get('tipoIdentificacion')
 
@@ -109,6 +109,7 @@ class ResPartner(models.Model):
                                     ],
                                     limit=1
                                 ).id
+                                self.action_get_economic_activities()
             except:
                 message = _('The email query service is unavailable at this moment')
                 _logger.info(message)

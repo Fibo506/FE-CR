@@ -192,6 +192,7 @@ class PartnerElectronic(models.Model):
 
                 self.economic_activities_ids = economic_activities
                 self.name = json_response["name"]
+                self.inscribed = True if json_response['situacion'] == 'Inscrito' or json_response['situacion'] == 'Inscrito de Oficio' else False  # Nota la "I" mayúscula
 
                 if len(a_codes) >= 1:
                     self.activity_id = economic_activities[0]
