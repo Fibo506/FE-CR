@@ -4,10 +4,10 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Odoo Server 16.0-20230613\n"
+"Project-Id-Version: Odoo Server 17.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-07-22 22:17+0000\n"
-"PO-Revision-Date: 2023-07-22 22:17+0000\n"
+"POT-Creation-Date: 2025-02-27 22:31+0000\n"
+"PO-Revision-Date: 2025-02-27 22:31+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -127,6 +127,13 @@ msgstr ""
 "    </div>\n"
 "</div>\n"
 "            "
+
+#. module: cr_electronic_invoice_pos
+#: model:ir.model.fields,field_description:cr_electronic_invoice_pos.field_pos_payment_method__account_payment_method_id
+#: model_terms:ir.ui.view,arch_db:cr_electronic_invoice_pos.pos_payment_method_form
+msgid "Accounting Payment Method"
+msgstr "Método de pago contable"
+
 
 #. module: cr_electronic_invoice_pos
 #. odoo-python
@@ -345,6 +352,13 @@ msgid "Consulta Hacienda POS"
 msgstr ""
 
 #. module: cr_electronic_invoice_pos
+#: model:ir.model.fields,field_description:cr_electronic_invoice_pos.field_pos_config__default_partner_id
+#: model:ir.model.fields,field_description:cr_electronic_invoice_pos.field_res_config_settings__pos_default_partner_id
+#: model_terms:ir.ui.view,arch_db:cr_electronic_invoice_pos.res_config_settings_view_form
+msgid "Default Customer"
+msgstr "Cliente Predeterminado"
+
+#. module: cr_electronic_invoice_pos
 #: model_terms:ir.ui.view,arch_db:cr_electronic_invoice_pos.res_config_settings_view_form
 msgid "Create Sequences"
 msgstr "Crear Secuencias"
@@ -434,7 +448,7 @@ msgstr ""
 #. module: cr_electronic_invoice_pos
 #: model_terms:ir.ui.view,arch_db:cr_electronic_invoice_pos.view_pos_order_electronic_invoice_filter
 msgid "Estado Tributacion"
-msgstr ""
+msgstr "Estado Tributación"
 
 #. module: cr_electronic_invoice_pos
 #: model_terms:ir.ui.view,arch_db:cr_electronic_invoice_pos.pos_order_report_document
@@ -476,7 +490,7 @@ msgstr "Seguidores (Socios)"
 #. module: cr_electronic_invoice_pos
 #: model:ir.model.fields,field_description:cr_electronic_invoice_pos.field_pos_order__has_message
 msgid "Has Message"
-msgstr ""
+msgstr "Tiene mensaje"
 
 #. module: cr_electronic_invoice_pos
 #: model:ir.model.fields,help:cr_electronic_invoice_pos.field_pos_order__message_needaction
@@ -580,6 +594,7 @@ msgid "POS Invoice - Send by Email"
 msgstr "Factura de PdV - Enviar por Correo"
 
 #. module: cr_electronic_invoice_pos
+#: model:ir.model.fields,field_description:cr_electronic_invoice_pos.field_pos_order__payment_methods_id
 #: model:ir.model.fields,field_description:cr_electronic_invoice_pos.field_account_bank_statement_import_journal_creation__payment_method_id
 #: model:ir.model.fields,field_description:cr_electronic_invoice_pos.field_account_journal__payment_method_id
 msgid "Payment Methods"
@@ -593,17 +608,22 @@ msgstr "Configuración del TPV"
 #. module: cr_electronic_invoice_pos
 #: model:ir.model,name:cr_electronic_invoice_pos.model_pos_order
 msgid "Point of Sale Orders"
-msgstr "Pedidos del TPV"
+msgstr "Pedidos del Punto de venta"
+
+#. module: cr_electronic_invoice_pos
+#: model:ir.model,name:cr_electronic_invoice_pos.model_pos_payment_method
+msgid "Point of Sale Payment Methods"
+msgstr "Métodos de pago del Punto de venta"
 
 #. module: cr_electronic_invoice_pos
 #: model:ir.model,name:cr_electronic_invoice_pos.model_pos_session
 msgid "Point of Sale Session"
-msgstr "Sesión TPV"
+msgstr "Sesión del Punto de venta"
 
 #. module: cr_electronic_invoice_pos
 #: model:ir.actions.report,name:cr_electronic_invoice_pos.pos_orders
 msgid "PosOrders"
-msgstr "Ordenes del PdV"
+msgstr "Ordenes del Punto de venta"
 
 #. module: cr_electronic_invoice_pos
 #: model:ir.model.fields.selection,name:cr_electronic_invoice_pos.selection__pos_order__state_tributacion__procesando
@@ -717,6 +737,15 @@ msgstr ""
 #: model:ir.model.fields,help:cr_electronic_invoice_pos.field_res_config_settings__terminal
 msgid "Terminal number"
 msgstr "Número de Terminal"
+
+#. module: cr_electronic_invoice_pos
+#: model_terms:ir.ui.view,arch_db:cr_electronic_invoice_pos.res_config_settings_view_form
+msgid ""
+"This will be the default customer in receipt for electronic tickets when "
+"name is not needed."
+msgstr ""
+"Este será el cliente predeterminado que se utiliza en los recibos cuando "
+"no se haya seleccionado un cliente."
 
 #. module: cr_electronic_invoice_pos
 #. odoo-python
