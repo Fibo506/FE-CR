@@ -34,7 +34,9 @@ class PartnerElectronic(models.Model):
     )
     inscribed = fields.Boolean(
         string="Inscribed",
-        default=False
+        default=False,
+        readonly=True,
+        copy=False
     )
 
     # === Economic Activity fields === #
