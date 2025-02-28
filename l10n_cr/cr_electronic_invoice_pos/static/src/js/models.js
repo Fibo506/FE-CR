@@ -3,7 +3,7 @@
 import { Order } from "@point_of_sale/app/store/models";
 import { patch } from "@web/core/utils/patch";
 
-console.log("POS Costa Rica Electronic Invoice. ");
+console.log("POS Factura Electrónica");
 
 patch(Order.prototype, {
   setup() {
@@ -92,8 +92,6 @@ patch(Order.prototype, {
               fields: ["sucursal", "terminal", "FE_sequence_id", "TE_sequence_id"]
             }
       ).then(function(result){return result;});
-      console.log("### journal data: ", journal_data);
-      console.log("get_tipo_documento()", this.tipo_documento);
       const seq_id = this.tipo_documento === "FE" ? journal_data[0].FE_sequence_id : journal_data[0].TE_sequence_id;
       const seq_domain = [["id", "=", seq_id[0]]];  
       const seq_data = await this.pos.orm.call(
@@ -105,7 +103,6 @@ patch(Order.prototype, {
               fields: ["name", "id", "number_next_actual", "prefix", "suffix", "number_increment", "padding"]
             }
       ).then(function(result){return result;});
-      console.log("### sequence data: ", seq_data);
       const idict = {
         year: luxon.DateTime.local().toFormat("yyyy"),
         month: luxon.DateTime.local().toFormat("MM"),
@@ -126,8 +123,6 @@ patch(Order.prototype, {
       const num_consecutivo = pad(journal_data[0].sucursal,3)+pad(journal_data[0].terminal,5)+tipo_doc+pad(num, seq_data[0].padding);
       const prefix = "506"+idict['day']+idict['month']+idict['y']+pad(vat,12);
       const suffix = "1"+idict['h12']+idict['day']+idict['month']+idict['y'];
-      console.log("Number electronic successfully generated: ", prefix + num_consecutivo + suffix);
-      //this.name = num_consecutivo;
       return prefix + num_consecutivo + suffix;
     
     } catch (error){

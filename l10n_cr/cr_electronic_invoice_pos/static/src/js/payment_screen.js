@@ -25,9 +25,6 @@ patch(PaymentScreen.prototype, {
             if (order.get_partner() === null) {
                 order.set_partner(checkPartner[0]);
             }
-            console.log("Partner", checkPartner);
-            console.log("Partner: order.get_partner()", order.get_partner());
-            console.log("Is inscribed? ", checkPartner[0].inscribed);
             //Valida si el cliente tiene estado 'Inscrito' en hacienda para emitir Factura Electronica.
             order.set_tipo_documento(checkPartner[0].inscribed ? "FE" : "TE");
             order.set_journal_id(this.pos.config.invoice_journal_id[0])
