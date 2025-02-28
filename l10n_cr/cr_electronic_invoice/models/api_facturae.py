@@ -898,7 +898,8 @@ def get_economic_activities(company):
         response_json = {
             'status': 200,
             'activities': response.json().get('actividades'),
-            'name': response.json().get('nombre')
+            'name': response.json().get('nombre'),
+            'situacion': response.json().get('situacion', {}).get('estado')
         }
     # elif 400 <= response.status_code <= 499:
     #    response_json = {'status': 400, 'ind-estado': 'error'}
