@@ -43,16 +43,15 @@
             </xpath>
 
             <field name="partner_id" position="after">
-                <field name="economic_activities_ids" invisible="1" readonly="1"
+                <field name="economic_activities_ids" string="Actividades Económicas" invisible="1" readonly="1"
                        options='{"active_test": [("type","in", ("in_invoice", "in_refund"))]}'/>
-                <field name="economic_activity_id"
-                       required="move_type in ('out_invoice', 'out_refund') or (tipo_documento == 'FEC')"
-                       invisible="(move_type not in ('out_invoice', 'out_refund')) or (tipo_documento != 'FEC')"
-                       domain="[('id', 'in', economic_activities_ids),]"
-                       options='{"no_open": True, "no_create": True, "active_test": [("type","in", ("in_invoice", "in_refund"))]}'/>
-                <field name="number_electronic" readonly="1"
+                <field name="economic_activity_id" string="Actividad Económica"
+                       options="{'no_create': True}"
+                       domain="[('active', '=', True)]"
+                       required="(move_type in ('out_invoice', 'out_refund','in_invoice', 'in_refund'))"/>
+                <field name="number_electronic" string="Número Electrónico" readonly="1"
                        invisible="(move_type not in ('out_invoice', 'out_refund','in_invoice', 'in_refund'))"/>
-                <field name="sequence" readonly="1"
+                <field name="sequence" string="Consecutivo" readonly="1"
                        invisible="(move_type not in ('out_invoice', 'out_refund','in_invoice', 'in_refund'))"/>
             </field>
 
@@ -65,7 +64,7 @@
                        invisible="(move_type not in ('out_invoice', 'out_refund','in_invoice', 'in_refund'))"/>
                 <field name="tipo_documento"
                        readonly="(state != 'draft')"
-                       invisible="('move_type','not in', ('out_invoice', 'out_refund','in_invoice', 'in_refund'))"
+                       invisible="(move_type not in ('out_invoice', 'out_refund','in_invoice', 'in_refund'))"
                        required="(move_type in ('out_invoice', 'out_refund','in_invoice', 'in_refund'))"/>
                 <field name="payment_methods_id"
                        readonly="(state != 'draft')"
@@ -172,7 +171,7 @@
         </field>
     </record>
 
-    <!-- 
+    <!--
     <record id="view_account_move_reverse_inherit" model="ir.ui.view">
         <field name="name">account.move.reverse.form.inherit</field>
         <field name="model">account.move.reverse</field>
