@@ -361,11 +361,9 @@ def gen_xml_v43(inv, sale_conditions, total_servicio_gravado,
     if inv._name == 'pos.order':
         plazo_credito = '0'
         for payment in inv.payment_ids:
-            # En caso que no tenga código definido se colocará el de efectivo para evitar rechazos de documentos
             if not payment.payment_method_id.sequence:
                 payment_methods_id.append('01')
             else:
-                # Se agrega el campo code en los métodos de pago de Odoo POS
                 payment_methods_id.append(str(payment.payment_method_id.sequence))
         cod_moneda = str(inv.company_id.currency_id.name)
         invoice_ref = False
@@ -397,24 +395,24 @@ def gen_xml_v43(inv, sale_conditions, total_servicio_gravado,
               (inv.company_id.invoice_provider_identification
                if inv.company_id.invoice_provider_type == 'external'
                else inv.company_id.vat) + '</ProveedorSistemas>')
-    sb.append('<CodigoActividadEmisor>' + inv.economic_activity_id.code + '</CodigoActividadEmisor>')
-    sb.append('<CodigoActividadReceptor>' + inv.partner_id.activity_id.code + '</CodigoActividadReceptor>')
+    sb.append('<CodigoActividadEmisor>' + str(inv.economic_activity_id.code) + '</CodigoActividadEmisor>')
+    sb.append('<CodigoActividadReceptor>' + str(inv.partner_id.activity_id.code) + '</CodigoActividadReceptor>')
     sb.append('<NumeroConsecutivo>' + inv.number_electronic[21:41] + '</NumeroConsecutivo>')
     sb.append('<FechaEmision>' + inv.date_issuance + '</FechaEmision>')
     sb.append('<Emisor>')
     sb.append('<Nombre>' + escape(issuing_company_name) + '</Nombre>')
     sb.append('<Identificacion>')
-    sb.append('<Tipo>' + issuing_company.identification_id.code + '</Tipo>')
-    sb.append('<Numero>' + issuing_company.vat + '</Numero>')
+    sb.append('<Tipo>' + str(issuing_company.identification_id.code) + '</Tipo>')
+    sb.append('<Numero>' + str(issuing_company.vat) + '</Numero>')
     sb.append('</Identificacion>')
     sb.append('<NombreComercial>' + escape(str(issuing_company.commercial_name or 'No disponible')) + '</NombreComercial>')
     sb.append('<Ubicacion>')
-    sb.append('<Provincia>' + issuing_company.state_id.code + '</Provincia>')
-    sb.append('<Canton>' + issuing_company.county_id.code + '</Canton>')
-    sb.append('<Distrito>' + issuing_company.district_id.code + '</Distrito>')
+    sb.append('<Provincia>' + str(issuing_company.state_id.code) + '</Provincia>')
+    sb.append('<Canton>' + str(issuing_company.county_id.code) + '</Canton>')
+    sb.append('<Distrito>' + str(issuing_company.district_id.code) + '</Distrito>')
 
     if issuing_company.neighborhood_id and issuing_company.neighborhood_id.code:
-        sb.append('<Barrio>' + str(issuing_company.neighborhood_id.name or None) + '</Barrio>')
+        sb.append('<Barrio>' + str(issuing_company.neighborhood_id.name or '') + '</Barrio>')
 
     sb.append('<OtrasSenas>' + escape(str(issuing_company.street or 'No disponible')) + '</OtrasSenas>')
     sb.append('</Ubicacion>')
@@ -451,16 +449,16 @@ def gen_xml_v43(inv, sale_conditions, total_servicio_gravado,
 
             if inv.tipo_documento == 'FEE' or id_code == '05':
                 if receiver_company.vat:
-                    sb.append('<IdentificacionExtranjero>' + receiver_company.vat + '</IdentificacionExtranjero>')
+                    sb.append('<IdentificacionExtranjero>' + str(receiver_company.vat) + '</IdentificacionExtranjero>')
             else:
                 sb.append('<Identificacion>')
-                sb.append('<Tipo>' + id_code + '</Tipo>')
-                sb.append('<Numero>' + vat + '</Numero>')
+                sb.append('<Tipo>' + str(id_code) + '</Tipo>')
+                sb.append('<Numero>' + str(vat) + '</Numero>')
                 sb.append('</Identificacion>')
 
             if inv.tipo_documento != 'FEE':
                 if receiver_company.state_id and \
-                    receiver_company.county_id and \
+                        receiver_company.county_id and \
                         receiver_company.district_id and receiver_company.neighborhood_id:
                     sb.append('<Ubicacion>')
                     sb.append('<Provincia>' + str(receiver_company.state_id.code or '') + '</Provincia>')
@@ -468,7 +466,7 @@ def gen_xml_v43(inv, sale_conditions, total_servicio_gravado,
                     sb.append('<Distrito>' + str(receiver_company.district_id.code or '') + '</Distrito>')
 
                     if receiver_company.neighborhood_id and receiver_company.neighborhood_id.code:
-                        sb.append('<Barrio>' + str(receiver_company.neighborhood_id.name or None) + '</Barrio>')
+                        sb.append('<Barrio>' + str(receiver_company.neighborhood_id.name or '') + '</Barrio>')
 
                     sb.append('<OtrasSenas>' + escape(str(receiver_company.street or 'No disponible')) + '</OtrasSenas>')
                     sb.append('</Ubicacion>')
@@ -489,12 +487,12 @@ def gen_xml_v43(inv, sale_conditions, total_servicio_gravado,
                     email_receptor = receiver_company.email
                 else:
                     email_receptor = 'indefinido@indefinido.com'
-                sb.append('<CorreoElectronico>' + email_receptor + '</CorreoElectronico>')
+                sb.append('<CorreoElectronico>' + str(email_receptor) + '</CorreoElectronico>')
 
             sb.append('</Receptor>')
 
-    sb.append('<CondicionVenta>' + sale_conditions + '</CondicionVenta>')
-    sb.append('<PlazoCredito>' + plazo_credito + '</PlazoCredito>')
+    sb.append('<CondicionVenta>' + str(sale_conditions) + '</CondicionVenta>')
+    sb.append('<PlazoCredito>' + str(plazo_credito) + '</PlazoCredito>')
     if lines:
         sb.append('<DetalleServicio>')
 
@@ -508,12 +506,12 @@ def gen_xml_v43(inv, sale_conditions, total_servicio_gravado,
                 sb.append('<PartidaArancelaria>' + str(v['partidaArancelaria']) + '</PartidaArancelaria>')
 
             if v.get('codigoCabys'):
-                sb.append('<CodigoCABYS>' + (v['codigoCabys']) + '</CodigoCABYS>')
+                sb.append('<CodigoCABYS>' + str(v['codigoCabys']) + '</CodigoCABYS>')
 
             if v.get('codigo'):
                 sb.append('<CodigoComercial>')
                 sb.append('<Tipo>04</Tipo>')
-                sb.append('<Codigo>' + (v['codigo']) + '</Codigo>')
+                sb.append('<Codigo>' + str(v['codigo']) + '</Codigo>')
                 sb.append('</CodigoComercial>')
 
             sb.append('<Cantidad>' + str(v['cantidad']) + '</Cantidad>')
@@ -549,13 +547,13 @@ def gen_xml_v43(inv, sale_conditions, total_servicio_gravado,
                             sb.append('<Exoneracion>')
 
                             sb.append('<TipoDocumento>' +
-                                      receiver_company.type_exoneration.code +
+                                      str(receiver_company.type_exoneration.code) +
                                       '</TipoDocumento>')
                             sb.append('<NumeroDocumento>' +
-                                      receiver_company.exoneration_number +
+                                      str(receiver_company.exoneration_number) +
                                       '</NumeroDocumento>')
                             sb.append('<NombreInstitucion>' +
-                                      receiver_company.institution_name +
+                                      str(receiver_company.institution_name) +
                                       '</NombreInstitucion>')
                             sb.append('<FechaEmision>' +
                                       str(receiver_company.date_issue) + 'T00:00:00-06:00' +
@@ -599,7 +597,7 @@ def gen_xml_v43(inv, sale_conditions, total_servicio_gravado,
 
     sb.append('<ResumenFactura>')
     sb.append('<CodigoTipoMoneda>')
-    sb.append('<CodigoMoneda>' + cod_moneda + '</CodigoMoneda>')
+    sb.append('<CodigoMoneda>' + str(cod_moneda) + '</CodigoMoneda>')
     sb.append('<TipoCambio>' + str(currency_rate) + '</TipoCambio>')
     sb.append('</CodigoTipoMoneda>')
 
@@ -640,7 +638,7 @@ def gen_xml_v43(inv, sale_conditions, total_servicio_gravado,
 
     payment_method_length = len(payment_methods_id)
     for payment_method_counter in range(min(payment_method_length, 4)):
-        sb.append('<MedioPago>' + payment_methods_id[payment_method_counter] + '</MedioPago>')  # Se debe de validar que
+        sb.append('<MedioPago>' + payment_methods_id[payment_method_counter] + '</MedioPago>')
 
     sb.append('<TotalComprobante>' +
               str(round(base_total + total_impuestos + totalOtrosCargos - total_iva_devuelto, 5)) +
@@ -652,7 +650,7 @@ def gen_xml_v43(inv, sale_conditions, total_servicio_gravado,
         sb.append('<InformacionReferencia>')
         sb.append('<TipoDoc>' + str(tipo_documento_referencia) + '</TipoDoc>')
         sb.append('<Numero>' + str(numero_documento_referencia) + '</Numero>')
-        sb.append('<FechaEmision>' + fecha_emision_referencia + '</FechaEmision>')
+        sb.append('<FechaEmision>' + str(fecha_emision_referencia) + '</FechaEmision>')
         sb.append('<Codigo>' + str(codigo_referencia) + '</Codigo>')
         sb.append('<Razon>' + str(razon_referencia) + '</Razon>')
         sb.append('</InformacionReferencia>')
@@ -663,7 +661,7 @@ def gen_xml_v43(inv, sale_conditions, total_servicio_gravado,
         if invoice_ref:
             sb.append('<OtroContenido>')
             sb.append('<InformacionAdicional xmlns="https://FE-CR/DataInfo.xsd">')
-            sb.append('<OrdenCompra>' + invoice_ref + '</OrdenCompra>')
+            sb.append('<OrdenCompra>' + str(invoice_ref) + '</OrdenCompra>')
             sb.append('</InformacionAdicional>')
             sb.append('</OtroContenido>')
         sb.append('</Otros>')
