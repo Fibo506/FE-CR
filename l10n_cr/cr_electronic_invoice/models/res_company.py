@@ -354,7 +354,7 @@ class CompanyElectronic(models.Model):
     def get_days_left(self):
         today = datetime.today()
         date_due = self.date_expiration_sign
-        range_days = date_due - today
+        range_days = date_due - today if date_due else 0
 
         return range_days.days
 
