@@ -392,7 +392,7 @@ def gen_xml_v43(inv, sale_conditions, total_servicio_gravado,
     sb.append('xsi:schemaLocation="' + fe_enums.schemaLocation[inv.tipo_documento] + '">')
 
     sb.append('<Clave>' + inv.number_electronic + '</Clave>')
-    sb.append('<CodigoActividad>' + inv.economic_activity_id.code + '</CodigoActividad>')
+    sb.append('<CodigoActividad>' + str(inv.company_id.activity_id.code) + '</CodigoActividad>')
     sb.append('<NumeroConsecutivo>' + inv.number_electronic[21:41] + '</NumeroConsecutivo>')
     sb.append('<FechaEmision>' + inv.date_issuance + '</FechaEmision>')
     sb.append('<Emisor>')
@@ -898,7 +898,8 @@ def get_economic_activities(company):
         response_json = {
             'status': 200,
             'activities': response.json().get('actividades'),
-            'name': response.json().get('nombre')
+            'name': response.json().get('nombre'),
+            'situacion': response.json().get('situacion', {}).get('estado')
         }
     # elif 400 <= response.status_code <= 499:
     #    response_json = {'status': 400, 'ind-estado': 'error'}

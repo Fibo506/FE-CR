@@ -4,11 +4,11 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Odoo Server 16.0-20230329\n"
+"Project-Id-Version: Odoo Server 17.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-04-11 00:46+0000\n"
-"PO-Revision-Date: 2023-04-11 00:46+0000\n"
-"Last-Translator: Norlan Ruiz<ruiznorlan@gmail.com>\n"
+"POT-Creation-Date: 2025-02-27 23:57+0000\n"
+"PO-Revision-Date: 2025-02-27 23:57+0000\n"
+"Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -277,6 +277,11 @@ msgid "<strong>Source:</strong>"
 msgstr "<strong>Origen:</strong>"
 
 #. module: cr_electronic_invoice
+#: model_terms:ir.ui.view,arch_db:cr_electronic_invoice.view_company_form_inherit
+msgid "API Consultas"
+msgstr "Consultas API"
+
+#. module: cr_electronic_invoice
 #: model:ir.model,name:cr_electronic_invoice.model_account_invoice_send
 msgid "Account Invoice Send"
 msgstr "Enviar Factura"
@@ -284,7 +289,12 @@ msgstr "Enviar Factura"
 #. module: cr_electronic_invoice
 #: model:ir.model,name:cr_electronic_invoice.model_account_move_reversal
 msgid "Account Move Reversal"
-msgstr "Revocación de movimiento en cuenta"
+msgstr "Reversión de movimiento de cuenta"
+
+#. module: cr_electronic_invoice
+#: model:ir.model,name:cr_electronic_invoice.model_account_move_send
+msgid "Account Move Send"
+msgstr "Enviar movimiento de cuenta"
 
 #. module: cr_electronic_invoice
 #: model:ir.model.fields.selection,name:cr_electronic_invoice.selection__account_move__state_invoice_partner__2
@@ -318,6 +328,7 @@ msgstr "Activo"
 #. module: cr_electronic_invoice
 #. odoo-python
 #: code:addons/cr_electronic_invoice/models/res_company.py:0
+#: model_terms:ir.ui.view,arch_db:cr_electronic_invoice.view_company_form_inherit
 #, python-format
 msgid "Actividades Económicas"
 msgstr ""
@@ -498,6 +509,16 @@ msgid "Config Settings"
 msgstr "Opciones de configuración"
 
 #. module: cr_electronic_invoice
+#: model_terms:ir.ui.view,arch_db:cr_electronic_invoice.view_company_form_inherit
+msgid "Configuracion Compañía"
+msgstr "Configuración Compañía"
+
+#. module: cr_electronic_invoice
+#: model_terms:ir.ui.view,arch_db:cr_electronic_invoice.view_company_form_inherit
+msgid "Configuracion Credenciales"
+msgstr "Configuración Credenciales"
+
+#. module: cr_electronic_invoice
 #: model:ir.model.fields,field_description:cr_electronic_invoice.field_account_move__sequence
 #: model:ir.model.fields,field_description:cr_electronic_invoice.field_account_payment__sequence
 #: model_terms:ir.ui.view,arch_db:cr_electronic_invoice.view_move_tree_inherit
@@ -536,6 +557,11 @@ msgstr ""
 #: model:product.template,name:cr_electronic_invoice.product_exportacion
 msgid "Costos de Exportación"
 msgstr ""
+
+#. module: cr_electronic_invoice
+#: model_terms:ir.ui.view,arch_db:cr_electronic_invoice.view_company_form_inherit
+msgid "Country Code"
+msgstr "Código País"
 
 #. module: cr_electronic_invoice
 #: model_terms:ir.ui.view,arch_db:cr_electronic_invoice.view_move_form_inherit
@@ -927,6 +953,10 @@ msgid "Estado email"
 msgstr ""
 
 #. module: cr_electronic_invoice
+#: model:account.tax,description:cr_electronic_invoice.exempt_tax_purchase
+#: model:account.tax,description:cr_electronic_invoice.exempt_tax_sale
+#: model:account.tax,name:cr_electronic_invoice.exempt_tax_purchase
+#: model:account.tax,name:cr_electronic_invoice.exempt_tax_sale
 #: model:account.tax.group,name:cr_electronic_invoice.tax_group_Exento
 msgid "Exento"
 msgstr ""
@@ -982,6 +1012,11 @@ msgstr ""
 #. module: cr_electronic_invoice
 #: model:ir.model.fields.selection,name:cr_electronic_invoice.selection__account_move__tipo_documento__fee
 msgid "Factura Electrónica de Exportación"
+msgstr ""
+
+#. module: cr_electronic_invoice
+#: model_terms:ir.ui.view,arch_db:cr_electronic_invoice.view_company_form_inherit
+msgid "Facturación Electrónica"
 msgstr ""
 
 #. module: cr_electronic_invoice
@@ -1089,8 +1124,56 @@ msgid "IUC"
 msgstr ""
 
 #. module: cr_electronic_invoice
+#: model:account.tax,name:cr_electronic_invoice.iva_tax_01
+#: model:account.tax,name:cr_electronic_invoice.iva_tax_02
+msgid "IVA"
+msgstr ""
+
+#. module: cr_electronic_invoice
+#: model:account.tax,description:cr_electronic_invoice.iva_tax_26_ND
+#: model:account.tax,name:cr_electronic_invoice.iva_tax_26_ND
+msgid "IVA (cálculo especial - No deducible)"
+msgstr ""
+
+#. module: cr_electronic_invoice
+#: model:account.tax,description:cr_electronic_invoice.iva_tax_25
+#: model:account.tax,description:cr_electronic_invoice.iva_tax_26
+#: model:account.tax,name:cr_electronic_invoice.iva_tax_25
+#: model:account.tax,name:cr_electronic_invoice.iva_tax_26
+msgid "IVA (cálculo especial)"
+msgstr ""
+
+#. module: cr_electronic_invoice
+#: model:account.tax,description:cr_electronic_invoice.iva_tax_00
+#: model:account.tax,name:cr_electronic_invoice.iva_tax_0
 #: model:account.tax.group,name:cr_electronic_invoice.tax_group_IVA0
 msgid "IVA 0%"
+msgstr ""
+
+#. module: cr_electronic_invoice
+#: model:account.tax,description:cr_electronic_invoice.iva_tax_0
+#: model:account.tax,name:cr_electronic_invoice.iva_tax_00
+msgid "IVA 0% "
+msgstr ""
+
+#. module: cr_electronic_invoice
+#: model:account.tax,description:cr_electronic_invoice.iva_tax_00_ND
+#: model:account.tax,name:cr_electronic_invoice.iva_tax_00_ND
+msgid "IVA 0% (No deducible)"
+msgstr ""
+
+#. module: cr_electronic_invoice
+#: model:account.tax,description:cr_electronic_invoice.iva_tax_10_ND
+#: model:account.tax,name:cr_electronic_invoice.iva_tax_10_ND
+msgid "IVA 0% (Trans No deducible)"
+msgstr ""
+
+#. module: cr_electronic_invoice
+#: model:account.tax,description:cr_electronic_invoice.iva_tax_09
+#: model:account.tax,description:cr_electronic_invoice.iva_tax_10
+#: model:account.tax,name:cr_electronic_invoice.iva_tax_09
+#: model:account.tax,name:cr_electronic_invoice.iva_tax_10
+msgid "IVA 0% (Transitorio)"
 msgstr ""
 
 #. module: cr_electronic_invoice
@@ -1099,13 +1182,46 @@ msgid "IVA 1%"
 msgstr ""
 
 #. module: cr_electronic_invoice
+#: model:account.tax,description:cr_electronic_invoice.iva_tax_04_ND
+#: model:account.tax,name:cr_electronic_invoice.iva_tax_04_ND
+msgid "IVA 1% (No deducible)"
+msgstr ""
+
+#. module: cr_electronic_invoice
+#: model:account.tax,description:cr_electronic_invoice.iva_tax_03
+#: model:account.tax,description:cr_electronic_invoice.iva_tax_04
+#: model:account.tax,name:cr_electronic_invoice.iva_tax_03
+#: model:account.tax,name:cr_electronic_invoice.iva_tax_04
+msgid "IVA 1% (Tarifa Reducida)"
+msgstr ""
+
+#. module: cr_electronic_invoice
 #: model:account.tax.group,name:cr_electronic_invoice.tax_group_IVA13
 msgid "IVA 13%"
 msgstr ""
 
 #. module: cr_electronic_invoice
+#: model:account.tax,name:cr_electronic_invoice.iva_tax_02_ND
+msgid "IVA 13% (No deducible)"
+msgstr ""
+
+#. module: cr_electronic_invoice
 #: model:account.tax.group,name:cr_electronic_invoice.tax_group_IVA2
 msgid "IVA 2%"
+msgstr ""
+
+#. module: cr_electronic_invoice
+#: model:account.tax,description:cr_electronic_invoice.iva_tax_06_ND
+#: model:account.tax,name:cr_electronic_invoice.iva_tax_06_ND
+msgid "IVA 2% (No deducible)"
+msgstr ""
+
+#. module: cr_electronic_invoice
+#: model:account.tax,description:cr_electronic_invoice.iva_tax_05
+#: model:account.tax,description:cr_electronic_invoice.iva_tax_06
+#: model:account.tax,name:cr_electronic_invoice.iva_tax_05
+#: model:account.tax,name:cr_electronic_invoice.iva_tax_06
+msgid "IVA 2% (Tarifa Reducida)"
 msgstr ""
 
 #. module: cr_electronic_invoice
@@ -1169,6 +1285,7 @@ msgstr "Si está marcada, los mensajes nuevos requieren su atención."
 
 #. module: cr_electronic_invoice
 #: model:ir.model.fields,help:cr_electronic_invoice.field_res_company__message_has_error
+#: model:ir.model.fields,help:cr_electronic_invoice.field_res_company__message_has_sms_error
 msgid "If checked, some messages have a delivery error."
 msgstr "Si está marcado, algunos mensajes tienen un error de entrega."
 
@@ -1228,6 +1345,12 @@ msgstr ""
 "Hacienda"
 
 #. module: cr_electronic_invoice
+#: model:ir.model.fields,field_description:cr_electronic_invoice.field_res_partner__inscribed
+#: model:ir.model.fields,field_description:cr_electronic_invoice.field_res_users__inscribed
+msgid "Inscribed"
+msgstr "Está inscrito?"
+
+#. module: cr_electronic_invoice
 #. odoo-python
 #: code:addons/cr_electronic_invoice/models/res_company.py:0
 #, python-format
@@ -1248,6 +1371,11 @@ msgstr "Referencia Interna"
 #: model_terms:ir.ui.view,arch_db:cr_electronic_invoice.view_account_invoice_filter
 msgid "Invoice"
 msgstr "Documento"
+
+#. module: cr_electronic_invoice
+#: model:ir.model.fields,field_description:cr_electronic_invoice.field_res_company__invoice_is_electronic
+msgid "Invoice Electronic"
+msgstr "Factura Electrónica"
 
 #. module: cr_electronic_invoice
 #: model:ir.model.fields,field_description:cr_electronic_invoice.field_res_company__invoice_field_ids
@@ -1544,7 +1672,7 @@ msgstr ""
 #: code:addons/cr_electronic_invoice/models/account_journal.py:0
 #, python-format
 msgid "No attachment was provided"
-msgstr ""
+msgstr "No se proporcionó ningún archivo adjunto."
 
 #. module: cr_electronic_invoice
 #. odoo-python
@@ -1590,7 +1718,7 @@ msgstr "Número de errores"
 
 #. module: cr_electronic_invoice
 #: model:ir.model.fields,help:cr_electronic_invoice.field_res_company__message_needaction_counter
-msgid "Number of messages which requires an action"
+msgid "Number of messages requiring action"
 msgstr "Número de mensajes que requieren una acción"
 
 #. module: cr_electronic_invoice
@@ -1700,7 +1828,7 @@ msgstr "Método de pago"
 #. module: cr_electronic_invoice
 #: model:ir.model,name:cr_electronic_invoice.model_account_payment_term
 msgid "Payment Terms"
-msgstr "Plazos de pago"
+msgstr "Términos de pago"
 
 #. module: cr_electronic_invoice
 #: model:ir.actions.act_window,name:cr_electronic_invoice.action_payment_methods
@@ -1736,7 +1864,7 @@ msgstr "Por favor agregue el campo de la factura"
 #: code:addons/cr_electronic_invoice/models/account_move.py:0
 #, python-format
 msgid "Please check it to be able to issue the document!"
-msgstr ""
+msgstr "¡Por favor verifíquelo para poder emitir el documento!"
 
 #. module: cr_electronic_invoice
 #. odoo-python
@@ -1767,7 +1895,7 @@ msgstr "Producto"
 #. module: cr_electronic_invoice
 #: model:ir.model,name:cr_electronic_invoice.model_product_category
 msgid "Product Category"
-msgstr "Categoría de producto"
+msgstr "Categoría del producto"
 
 #. module: cr_electronic_invoice
 #: model:ir.model,name:cr_electronic_invoice.model_uom_uom
@@ -1868,6 +1996,11 @@ msgstr ""
 #: model:account.tax.group,name:cr_electronic_invoice.tax_group_SC
 msgid "SC"
 msgstr ""
+
+#. module: cr_electronic_invoice
+#: model:ir.model.fields,field_description:cr_electronic_invoice.field_res_company__message_has_sms_error
+msgid "SMS Delivery error"
+msgstr "Error de entrega de SMS"
 
 #. module: cr_electronic_invoice
 #: model:ir.model.fields,field_description:cr_electronic_invoice.field_account_payment_term__sale_conditions_id
@@ -2114,22 +2247,20 @@ msgstr ""
 #. module: cr_electronic_invoice
 #: model_terms:ir.ui.view,arch_db:cr_electronic_invoice.view_move_form_inherit
 msgid ""
-"The document has not yet been issued, it will be sent automatically in 5 "
-"minutes, if you need to send it manually press"
+"The document has not yet been issued, it will be sent automatically in 5 minutes, if you need to\n"
+"                    send it manually press"
 msgstr ""
-"El documento aún no ha sido emitido, se enviará automáticamente en 5 "
-"minutos, si necesita enviarlo manualmente presione"
+"El documento aún no ha sido emitido, se enviará automáticamente en 5 minutos, si necesita enviarlo \n"
+"                    manualmente presione"
 
 #. module: cr_electronic_invoice
 #: model_terms:ir.ui.view,arch_db:cr_electronic_invoice.view_move_form_inherit
 msgid ""
-"The document was issued successfully, however we still do not have the "
-"answer, it will be consulted in 10 minutes, if you wish to consult it "
-"manually press"
+"The document was issued successfully, however we still do not have the answer, it will be consulted\n"
+"                    in 10 minutes, if you wish to consult it manually press"
 msgstr ""
-"El documento fue emitido exitosamente, sin embargo aún no tenemos la "
-"respuesta, será consultado en 10 minutos, si desea consultarlo manualmente "
-"presione"
+"El documento fue emitido exitosamente, sin embargo aún no tenemos la respuesta, \n"
+"                    será consultado en 10 minutos, si desea consultarlo manualmente presione"
 
 #. module: cr_electronic_invoice
 #: model:ir.model.fields,help:cr_electronic_invoice.field_account_journal__expense_account_id
@@ -2248,6 +2379,16 @@ msgstr ""
 #: model:ir.model.fields,field_description:cr_electronic_invoice.field_res_company__url_base_exo
 msgid "URL Base EXONET"
 msgstr ""
+
+#. module: cr_electronic_invoice
+#: model_terms:ir.ui.view,arch_db:cr_electronic_invoice.view_company_form_inherit
+msgid "Ubicación"
+msgstr ""
+
+#. module: cr_electronic_invoice
+#: model:ir.model.fields,help:cr_electronic_invoice.field_res_company__invoice_is_electronic
+msgid "Use this option if you use electronic invoice"
+msgstr "Usa esta opción si utiliza factura electrónica"
 
 #. module: cr_electronic_invoice
 #: model:ir.model.fields,field_description:cr_electronic_invoice.field_res_company__send_user_ids
@@ -2396,3 +2537,8 @@ msgstr "{{object.company_id.name}} Factura (Ref {{object.number or 'n/a'}})"
 #: model:mail.template,subject:cr_electronic_invoice.email_template_client_exoneration_expired
 msgid "{{user.company_id.commercial_name}}: VAT exoneration expired"
 msgstr "{{user.company_id.commercial_name}}: Vencimiento de exoneración"
+
+#. module: cr_electronic_invoice
+#: model:mail.template,subject:cr_electronic_invoice.email_template_invoice_vendor
+msgid "{{{ object.company_id.name }} Factura (Ref {{ object.name or 'n/a' }})"
+msgstr ""

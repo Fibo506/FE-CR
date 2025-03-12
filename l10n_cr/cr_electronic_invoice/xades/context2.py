@@ -66,6 +66,10 @@ def create_xades_epes_signature(sign_date=datetime.datetime.now(pytz.timezone('U
         signature, 'XadesObjects', 'xades')
     props = template.create_signed_properties(
         qualifying, name=signed_properties_id, datetime=sign_date)
+    # The method to Add Emisor claimed role is not available with the current xmlsig version 0.1.3 wich is needed for deprecated crypthogaphy function. 
+    # We need to resolve the load certificate function first to use an updated xmlsig.       
+    # xmlsig.template.add_claimed_role(props, 'Emisor')
+
     # Manually add DataObjectFormat
     data_obj = xmlsig.utils.create_node(
         'SignedDataObjectProperties', props, ns=constants.EtsiNS)

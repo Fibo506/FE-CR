@@ -281,13 +281,13 @@ class AccountInvoiceElectronic(models.Model):
     def _compute_qr_code(self):
         for record in self:
             qr_info = ''
-            if self.env.user.company_id.invoice_qr_type != 'by_info':
+            if self.company_id.invoice_qr_type != 'by_info':
                 qr_info = request.env['ir.config_parameter'].sudo().get_param('web.base.url')
                 qr_info += record.get_portal_url()
             else:
-                if self.env.user.company_id.invoice_field_ids:
+                if self.company_id.invoice_field_ids:
                     dict_result = {}
-                    for ffild in self.env.user.company_id.invoice_field_ids.mapped('field_id'):
+                    for ffild in self.company_id.invoice_field_ids.mapped('field_id'):
                         if ffild.ttype == 'many2one':
                             dict_result[ffild.field_description] = self[ffild.name].display_name
                         else:
@@ -491,7 +491,7 @@ class AccountInvoiceElectronic(models.Model):
             if self.partner_id and self.partner_id.vat and not self.partner_id.identification_id:
                 raise UserError(_('Select the type of client identification in your profile'))
 
-            if tipo_documento == 'FE' and (not self.partner_id.vat or self.partner_id.identification_id.code == '05'):
+            if tipo_documento == 'FE' and (not self.partner_id.vat or self.partner_id.identification_id.code == '05' or self.partner_id.inscribed == False):
                 tipo_documento = 'TE'
                 self.tipo_documento = 'TE'
             if tipo_documento == 'FE':
@@ -989,7 +989,7 @@ class AccountInvoiceElectronic(models.Model):
     @api.model
     def _send_invoices_to_hacienda(self, max_invoices=10):  # cron
         _logger.info('##### CRON - Envía Facturas a Hacienda')
-        days_left = self.env.user.company_id.get_days_left()
+        days_left = self.company_id.get_days_left()
         _logger.debug('E-INV CR - Ejecutando _send_invoices_to_hacienda')
         invoices = self.env['account.move'].search(
             [
@@ -1009,7 +1009,7 @@ class AccountInvoiceElectronic(models.Model):
         if days_left >= 0:
             self.generate_and_send_invoices(invoices)
         else:
-            message = self.env.user.company_id.get_message_to_send()
+            message = self.company_id.get_message_to_send()
             for inv in invoices:
                 inv.message_post(
                     body=message,
@@ -1050,11 +1050,11 @@ class AccountInvoiceElectronic(models.Model):
             self.generate_and_send_invoices(self)
 
     def generate_and_send_invoice(self):
-        days_left = self.env.user.company_id.get_days_left()
+        days_left = self.company_id.get_days_left()
         if days_left >= 0:
             self.generate_and_send_invoices(self)
         else:
-            message = self.env.user.company_id.get_message_to_send()
+            message = self.company_id.get_message_to_send()
             self.message_post(
                 body=message,
                 subject=_('IMPORTANT NOTICE!!'),
@@ -1072,13 +1072,13 @@ class AccountInvoiceElectronic(models.Model):
         total_invoices = len(invoices)
         current_invoice = 0
 
-        days_left = self.env.user.company_id.get_days_left()
-        message = self.env.user.company_id.get_message_to_send()
+        days_left = self.company_id.get_days_left()
+        message = self.company_id.get_message_to_send()
         for inv in invoices:
             try:
                 current_invoice += 1
 
-                if days_left <= self.env.user.company_id.range_days:
+                if days_left <= self.company_id.range_days:
                     inv.message_post(
                         body=message,
                         subject=_('IMPORTANT NOTICE!!'),
@@ -1690,10 +1690,10 @@ class AccountInvoiceElectronic(models.Model):
             super().action_post()
             if not inv.number_electronic:
                 # if journal doesn't have sucursal use default from company
-                sucursal_id = inv.journal_id.sucursal or self.env.user.company_id.sucursal_MR
+                sucursal_id = inv.journal_id.sucursal or self.company_id.sucursal_MR
 
                 # if journal doesn't have terminal use default from company
-                terminal_id = inv.journal_id.terminal or self.env.user.company_id.terminal_MR
+                terminal_id = inv.journal_id.terminal or self.company_id.terminal_MR
 
                 response_json = api_facturae.get_clave_hacienda(
                     inv,
@@ -1820,7 +1820,7 @@ class AccountInvoiceElectronic(models.Model):
     #     if not lang:
     #         lang = get_lang(self.env).code
     #
-    #     if self.env.user.company_id.frm_ws_ambiente == 'disabled':
+    #     if self.company_id.frm_ws_ambiente == 'disabled':
     #         pass
     #     elif self.partner_id and self.partner_id.email:
     #         domain = [
@@ -1864,7 +1864,7 @@ class AccountInvoiceElectronic(models.Model):
             lang = get_lang(self.env).code
 
         # Verificamos si el ambiente de la compañía está desactivado
-        if self.env.user.company_id.frm_ws_ambiente == 'disabled':
+        if self.company_id.frm_ws_ambiente == 'disabled':
             pass
         elif self.partner_id and self.partner_id.email:
             # Agregamos filtro de compañía en el dominio para buscar el adjunto de comprobante
@@ -1931,7 +1931,7 @@ class AccountInvoiceElectronic(models.Model):
             lang = get_lang(self.env).code
 
         # Verificar si el entorno de Hacienda está deshabilitado
-        if self.env.user.company_id.frm_ws_ambiente == 'disabled':
+        if self.company_id.frm_ws_ambiente == 'disabled':
             pass
         elif self.partner_id and self.partner_id.email:  # Verificar que el partner tenga un email
 

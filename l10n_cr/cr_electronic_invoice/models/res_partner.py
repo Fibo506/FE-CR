@@ -32,6 +32,12 @@ class PartnerElectronic(models.Model):
         string="It's export",
         default=False
     )
+    inscribed = fields.Boolean(
+        string="Inscribed",
+        default=False,
+        readonly=True,
+        copy=False
+    )
 
     # === Economic Activity fields === #
 
@@ -180,12 +186,11 @@ class PartnerElectronic(models.Model):
                 for activity in activities:
                     if activity["estado"] == "A":
                         a_codes.append(activity["codigo"])
-                economic_activities = self.env['economic.activity'].with_context(active_test=False).search([('code',
-                                                                                                             'in',
-                                                                                                             a_codes)])
+                economic_activities = self.env['economic.activity'].with_context(active_test=False).search([('code','in', a_codes)])
 
                 self.economic_activities_ids = economic_activities
                 self.name = json_response["name"]
+                self.inscribed = True if json_response['situacion'] == 'Inscrito' or json_response['situacion'] == 'Inscrito de Oficio' else False  # Nota la "I" mayúscula
 
                 if len(a_codes) >= 1:
                     self.activity_id = economic_activities[0]
