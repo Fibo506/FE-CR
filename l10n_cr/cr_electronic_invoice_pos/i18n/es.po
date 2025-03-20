@@ -363,6 +363,13 @@ msgstr "Cliente Predeterminado"
 msgid "Create Sequences"
 msgstr "Crear Secuencias"
 
+#. module: point_of_sale
+#. odoo-javascript
+#: code:addons/point_of_sale/static/src/app/screens/receipt_screen/receipt/order_receipt.xml:0
+#, python-format
+msgid "CHANGE"
+msgstr "VUELTO"
+
 #. module: cr_electronic_invoice_pos
 #: model:ir.model.fields,field_description:cr_electronic_invoice_pos.field_pos_order__economic_activity_id
 msgid "Economic Activity"
