@@ -15,7 +15,7 @@
                     <div t-if="props.data.company.email" t-esc="props.data.company.email" />
                     <div t-if="props.data.company.website" t-esc="props.data.company.website" />
                     <div t-if="props.data.header" t-esc="props.data.header" />
-                </div>
+                </div><br/>
                 
 
                 <!-- Adding the Electronic number just after the company info. -->
@@ -30,8 +30,8 @@
                 </div>
                 <div t-if="props.data.number_electronic">
                         <b>Key:</b>
-                        <span t-esc="props.data.number_electronic.substring(0,34)"/><br/>
-                        <span t-esc="props.data.number_electronic.substring(34,50)"/><br/>
+                        <span t-esc="props.data.number_electronic.substring(0,30)"/><br/>
+                        <span t-esc="props.data.number_electronic.substring(30,50)"/><br/>
                         
                         <b>Consecutive:</b>
                         <span t-esc="props.data.number_electronic.substring(21,41)"/><br/> 
@@ -40,7 +40,7 @@
                     <b>Customer: </b><t t-esc="props.data.partner.name"/><br/>
                 </div>
                 <div t-if="props.data.partner.email">
-                    Email: <t t-esc="props.data.partner.email"/><br/>
+                    <b>Email:</b> <t t-esc="props.data.partner.email"/><br/>
                 </div>
                 <div style="text-align: center;">
                     <div t-if="props.data.cashier" class="cashier">
@@ -48,11 +48,12 @@
                         <div>Served by <t t-esc="props.data.cashier" /></div>
                     </div>
                     <div class="fw-bolder" t-if="props.data.trackingNumber and !props.data.bigTrackingNumber">
-                        <span class="fs-2" t-esc="props.data.trackingNumber" />
+                        <span class="fs-2" >
+                            Orden # <t t-esc="props.data.trackingNumber" />
+                        </span>
                     </div>
                 </div>
-            </div>
-            <br/>   
+            </div> 
         </xpath> 
     </t>
     <!-- Making the QR code smaller-->
