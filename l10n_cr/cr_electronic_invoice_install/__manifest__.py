@@ -12,7 +12,10 @@
     'depends': [
         'cr_electronic_invoice',
         'cabys',
-        'cr_import_vendor_bills'
+        'cr_import_vendor_bills',
+        'account_financial_report',
+        'date_range',
+        'report_xlsx'
         ],
     'external_dependencies': {
         "python": [

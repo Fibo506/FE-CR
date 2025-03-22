@@ -7,6 +7,8 @@ import zipfile
 import io
 from lxml import etree
 from datetime import datetime
+from odoo.addons.cr_electronic_invoice.models.api_facturae import load_xml_data
+
 import re
 
 from odoo import api, fields, models, _
@@ -208,7 +210,7 @@ class FetchmailServer(models.Model):
                     content_supplier_approval = content_supplier_approval.encode('utf-8')
                 invoice.xml_supplier_approval = base64.encodebytes(content_supplier_approval)
 
-                api_import_mail.load_xml_data_from_mail(
+                load_xml_data(
                     invoice, True,
                     company_id.import_bill_account_id,
                     company_id.import_bill_product_id,

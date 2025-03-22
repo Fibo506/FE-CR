@@ -68,11 +68,27 @@ def load_xml_data_from_mail(invoice, load_lines, account_id, product_id=False, a
     invoice.invoice_date = invoice.date_issuance
     invoice.tipo_documento = get_tipo_documento_from_xml(document_type)
 
+    emisor = invoice_xml.xpath("inv:Emisor/inv:Identificacion/inv:Numero", namespaces=namespaces)[0].text
+    tipo_emisor = invoice_xml.xpath("inv:Emisor/inv:Identificacion/inv:Tipo", namespaces=namespaces)[0].text
+    nombre_emisor = invoice_xml.xpath("inv:Emisor/inv:Nombre", namespaces=namespaces)[0].text
+    pais_emisor = invoice.env['res.country'].search([('name', '=', 'Costa Rica')], limit=1).id
+    telefono_emisor_node = invoice_xml.xpath("inv:Emisor/inv:Telefono/inv:NumTelefono", namespaces=namespaces)
+
+    if telefono_emisor_node:
+        telefono_emisor = telefono_emisor_node[0].text
+    else:
+        telefono_emisor = ''
+
     if invoice.tipo_documento == 'TE':
         invoice.unlink()
         raise UserError(_("No se aceptan Tiquete Electronico") % e)
 
-    emisor = invoice_xml.xpath("inv:Emisor/inv:Identificacion/inv:Numero", namespaces=namespaces)[0].text
+    correo_emisor = invoice_xml.xpath("inv:Emisor/inv:CorreoElectronico", namespaces=namespaces)[0].text
+    otrassenas_emisor_node = invoice_xml.xpath("inv:Emisor/inv:Ubicacion/inv:OtrasSenas", namespaces=namespaces)
+    if otrassenas_emisor_node:
+        otrassenas_emisor = otrassenas_emisor_node[0].text.encode('utf-8')
+    else:
+        otrassenas_emisor = ''
     try:
         receptor = invoice_xml.xpath("inv:Receptor/inv:Identificacion/inv:Numero", namespaces=namespaces)[0].text
     except Exception as e:
@@ -86,6 +102,8 @@ def load_xml_data_from_mail(invoice, load_lines, account_id, product_id=False, a
                         receptor + '. Please check the email in the inbox.') 
 
     currency_node = invoice_xml.xpath("inv:ResumenFactura/inv:CodigoTipoMoneda/inv:CodigoMoneda", namespaces=namespaces)
+
+
 
     if currency_node:
         invoice.currency_id = invoice.env['res.currency'].search([('name', '=', currency_node[0].text)], limit=1).id
@@ -101,25 +119,20 @@ def load_xml_data_from_mail(invoice, load_lines, account_id, product_id=False, a
     if partner:
         invoice.partner_id = partner
     else:
-        #Try Create Partner...
-        try:
-            nombre_emisor = invoice_xml.xpath("inv:Emisor/inv:Nombre", namespaces=namespaces)[0].text
-            type_emisor = invoice_xml.xpath("inv:Emisor/inv:Identificacion/inv:Tipo", namespaces=namespaces)[0].text
-            type = invoice.env['identification.type'].search([('code', '=', type_emisor)], limit=1)
-        except Exception as e:
-            invoice.unlink()
-            raise UserError("There isn't necessary info for create Partner. Please check the email in the inbox.")
-
-        vals = {
-            'name': nombre_emisor,
-            'company_id': invoice.company_id.id,
-            'identification_id': type.id,
-            'vat': emisor,
-            'active': True,
-            'is_company': True,
-            'type': 'contact',
-            'activity_id': activity.id
-        }
+        new_partner = invoice.env['res.partner'].create(
+            {
+                'name': nombre_emisor,
+                'vat': emisor,
+                'identification_id': tipo_emisor,
+                'type': 'contact',
+                'country_id': pais_emisor,
+                'phone': telefono_emisor,
+                'email': correo_emisor,
+                'street': otrassenas_emisor
+            }
+        )
+        if new_partner:
+            invoice.partner_id = new_partner
         try:
             email_emisor  = invoice_xml.xpath("inv:Emisor/inv:CorreoElectronico", namespaces=namespaces)[0].text
             vals['email'] = email_emisor
