@@ -778,7 +778,7 @@ class AccountInvoiceElectronic(models.Model):
                                 body=_('Aviso!.\n Error en carga del XML del proveedor') + str(error)
                             )
                             continue
-
+                    _logger.error(inv.amount_total_electronic_invoice - inv.amount_total)
                     if abs(inv.amount_total_electronic_invoice - inv.amount_total) > 1:
                         inv.state_tributacion = 'error'
                         inv.message_post(

@@ -1085,6 +1085,7 @@ def load_xml_data(invoice, load_lines, account_id, product_id=False, analytic_ac
     invoice.date_issuance = invoice_xml.xpath("inv:FechaEmision", namespaces=namespaces)[0].text
     invoice.invoice_date = invoice.date_issuance
     invoice.tipo_documento = False
+    invoice.amount_total_electronic_invoice = float(invoice_xml.xpath("inv:ResumenFactura/inv:TotalComprobante", namespaces=namespaces)[0].text)
 
     tipo_codigo = invoice_xml.xpath("inv:NumeroConsecutivo", namespaces=namespaces)[0].text[8:10]  # posiciones 9-10
     tipo_map = {
@@ -1213,12 +1214,19 @@ def load_xml_data(invoice, load_lines, account_id, product_id=False, analytic_ac
                     monto_desc = line.xpath("inv:MontoDescuento", namespaces=namespaces)
                     naturaleza = line.xpath("inv:NaturalezaDescuento", namespaces=namespaces)
 
-                if monto_desc and total_amount > 0:
-                    discount_amount = float(monto_desc[0].text or '0.0')
-                    discount_percentage = discount_amount / total_amount * 100
-
-                if naturaleza:
-                    discount_note = naturaleza[0].text
+                if total_amount > 0:
+                    discount_node = line.xpath("inv:Descuento", namespaces=namespaces)
+                    if discount_node:
+                        discount_amount_node = discount_node[0].xpath("inv:MontoDescuento", namespaces=namespaces)[0]
+                        discount_amount = float(discount_amount_node.text or '0.0')
+                        discount_percentage = discount_amount / total_amount * 100
+                        discount_note = discount_node[0].xpath("inv:NaturalezaDescuento", namespaces=namespaces)[0].text
+                    else:
+                        discount_amount_node = line.xpath("inv:MontoDescuento", namespaces=namespaces)
+                        if discount_amount_node:
+                            discount_amount = float(discount_amount_node[0].text or '0.0')
+                            discount_percentage = discount_amount / total_amount * 100
+                            discount_note = line.xpath("inv:NaturalezaDescuento", namespaces=namespaces)[0].text
 
             total_tax = 0.0
             taxes = []
@@ -1323,11 +1331,6 @@ def load_xml_data(invoice, load_lines, account_id, product_id=False, analytic_ac
             if not invoice.invoice_line_ids:
                 invoice.unlink()
                 raise UserError('Documento no cuenta con lineas de detalles.')
-
-def truncate_percentage(value, decimals=4):
-    base = Decimal(str(value))
-    quantize_str = '1.' + ('0' * decimals)
-    return float(base.quantize(Decimal(quantize_str), rounding=ROUND_DOWN))
 
 def p12_expiration_date(p12file, password):
     try:
