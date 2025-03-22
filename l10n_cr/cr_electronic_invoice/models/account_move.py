@@ -970,8 +970,8 @@ class AccountInvoiceElectronic(models.Model):
 
                                         self.message_post(
                                             body=message_description,
-                                            # subtype='mail.mt_note',
-                                            content_subtype='html'
+                                            subtype='mail.mt_note',
+                                            # content_subtype='html'
                                         )
 
                                         _logger.info(_(f'E-INV CR - Document Status:{inv.state_tributacion}'))

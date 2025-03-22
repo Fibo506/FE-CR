@@ -13,7 +13,6 @@ import re
 
 from odoo import api, fields, models, _
 from odoo.tests.common import Form
-from . import api_import_mail
 
 _logger = logging.getLogger(__name__)
 
