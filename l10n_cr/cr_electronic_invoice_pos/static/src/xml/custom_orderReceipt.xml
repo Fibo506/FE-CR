@@ -5,7 +5,7 @@
             <div>
                 <div style="text-align: center;">
                     <!-- contact address -->
-                    <div t-if="props.data.company.partner_id?.[1]" t-esc="props.data.company.partner_id[1]" />
+                    <t t-if="props.data.company.partner_id?.[1]" t-esc="props.data.company.partner_id[1]" />
                     <t t-if="props.data.company.vat">
                         <div t-esc="vatText"/>
                     </t>
@@ -14,26 +14,27 @@
                     </t>
                     <div t-if="props.data.company.email" t-esc="props.data.company.email" />
                     <div t-if="props.data.company.website" t-esc="props.data.company.website" />
-                    <div t-if="props.data.header" t-esc="props.data.header" />
-                </div><br/>
-                
+                    <div t-if="props.data.header" style="white-space:pre-line" t-esc="props.data.header" />
+                </div>
 
                 <!-- Adding the Electronic number just after the company info. -->
                 <div t-if="props.data.tipo_documento">
-                        <b>Document Type:</b>
-                        <t t-if="props.data.tipo_documento == 'FE' ">
-                            Electronic Invoice<br/>
-                        </t>
-                        <t t-else="">
-                            Electronic Ticket<br/>
-                        </t>           
+                        <span>
+                            <b>Document Type:</b>
+                            <t t-if="props.data.tipo_documento == 'FE' ">
+                                Electronic Invoice
+                            </t>
+                            <t t-else="">
+                                Electronic Ticket
+                            </t>    
+                        </span>       
                 </div>
                 <div t-if="props.data.number_electronic">
-                        <b>Key:</b>
+                    <b>Key:</b>     
                         <span t-esc="props.data.number_electronic.substring(0,30)"/><br/>
                         <span t-esc="props.data.number_electronic.substring(30,50)"/><br/>
                         
-                        <b>Consecutive:</b>
+                    <b>Consecutive:</b>
                         <span t-esc="props.data.number_electronic.substring(21,41)"/><br/> 
                 </div>
                 <div t-if="props.data.partner">
