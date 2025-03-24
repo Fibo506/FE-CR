@@ -5,7 +5,7 @@ pyopenssl==19.0.0
 zeep
 PyPDF2
 passlib
-werkzeug
+werkzeug==2.0.2
 python-dateutil
 PyYAML
 psutil
@@ -20,3 +20,4 @@ vatnumber
 xlsxwriter
 lxml
 xlrd==1.2.0
+lxml_html_clean
