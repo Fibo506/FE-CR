@@ -3,7 +3,7 @@ xmlsig==0.1.3
 jsonschema
 pyopenssl==19.0.0
 zeep
-PyPDF2
+PyPDF2==1.26.0
 passlib
 werkzeug==2.0.2
 python-dateutil
@@ -16,8 +16,8 @@ html2text
 num2words
 paramiko
 phonenumbers
-vatnumber
+#vatnumber
 xlsxwriter
 lxml
-xlrd==1.2.0
 lxml_html_clean
+xlrd==1.2.0
