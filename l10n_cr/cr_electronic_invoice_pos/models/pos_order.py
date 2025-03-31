@@ -49,7 +49,7 @@ class PosOrder(models.Model):
             'sequence': self.number_electronic[21:41],
             'number_electronic': self.number_electronic,
             'name': self.number_electronic[21:41],
-            'payment_methods_id': self.payment_ids.mapped('payment_method_id').account_payment_method_id.id
+            'payment_methods_id': self.payment_ids.mapped('payment_method_id').account_payment_method_id.id if len(self.payment_ids.mapped('payment_method_id').account_payment_method_id) == 1 else self.payment_ids.mapped('payment_method_id').account_payment_method_id[0].id
         })
         return vals
    
