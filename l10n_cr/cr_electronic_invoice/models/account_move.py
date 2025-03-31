@@ -281,13 +281,13 @@ class AccountInvoiceElectronic(models.Model):
     def _compute_qr_code(self):
         for record in self:
             qr_info = ''
-            if self.env.user.company_id.invoice_qr_type != 'by_info':
+            if self.company_id.invoice_qr_type != 'by_info':
                 qr_info = request.env['ir.config_parameter'].sudo().get_param('web.base.url')
                 qr_info += record.get_portal_url()
             else:
-                if self.env.user.company_id.invoice_field_ids:
+                if self.company_id.invoice_field_ids:
                     dict_result = {}
-                    for ffild in self.env.user.company_id.invoice_field_ids.mapped('field_id'):
+                    for ffild in self.company_id.invoice_field_ids.mapped('field_id'):
                         if ffild.ttype == 'many2one':
                             dict_result[ffild.field_description] = self[ffild.name].display_name
                         else:
@@ -491,9 +491,7 @@ class AccountInvoiceElectronic(models.Model):
             if self.partner_id and self.partner_id.vat and not self.partner_id.identification_id:
                 raise UserError(_('Select the type of client identification in your profile'))
 
-            if tipo_documento == 'FE' and (not self.partner_id.vat
-                                           or self.partner_id.identification_id.code == '05'
-                                           or self.partner_id.inscribed == False):
+            if tipo_documento == 'FE' and (not self.partner_id.vat or self.partner_id.identification_id.code == '05' or self.partner_id.inscribed == False):
                 tipo_documento = 'TE'
                 self.tipo_documento = 'TE'
             if tipo_documento == 'FE':
@@ -780,7 +778,7 @@ class AccountInvoiceElectronic(models.Model):
                                 body=_('Aviso!.\n Error en carga del XML del proveedor') + str(error)
                             )
                             continue
-
+                    _logger.error(inv.amount_total_electronic_invoice - inv.amount_total)
                     if abs(inv.amount_total_electronic_invoice - inv.amount_total) > 1:
                         inv.state_tributacion = 'error'
                         inv.message_post(
@@ -972,8 +970,8 @@ class AccountInvoiceElectronic(models.Model):
 
                                         self.message_post(
                                             body=message_description,
-                                            # subtype='mail.mt_note',
-                                            content_subtype='html'
+                                            subtype_xmlid='mail.mt_comment'
+                                            # content_subtype='html'
                                         )
 
                                         _logger.info(_(f'E-INV CR - Document Status:{inv.state_tributacion}'))
@@ -991,7 +989,7 @@ class AccountInvoiceElectronic(models.Model):
     @api.model
     def _send_invoices_to_hacienda(self, max_invoices=10):  # cron
         _logger.info('##### CRON - Envía Facturas a Hacienda')
-        days_left = self.env.user.company_id.get_days_left()
+        days_left = self.company_id.get_days_left()
         _logger.debug('E-INV CR - Ejecutando _send_invoices_to_hacienda')
         invoices = self.env['account.move'].search(
             [
@@ -1011,7 +1009,7 @@ class AccountInvoiceElectronic(models.Model):
         if days_left >= 0:
             self.generate_and_send_invoices(invoices)
         else:
-            message = self.env.user.company_id.get_message_to_send()
+            message = self.company_id.get_message_to_send()
             for inv in invoices:
                 inv.message_post(
                     body=message,
@@ -1047,11 +1045,11 @@ class AccountInvoiceElectronic(models.Model):
             self.generate_and_send_invoices(self)
 
     def generate_and_send_invoice(self):
-        days_left = self.env.user.company_id.get_days_left()
+        days_left = self.company_id.get_days_left()
         if days_left >= 0:
             self.generate_and_send_invoices(self)
         else:
-            message = self.env.user.company_id.get_message_to_send()
+            message = self.company_id.get_message_to_send()
             self.message_post(
                 body=message,
                 subject=_('IMPORTANT NOTICE!!'),
@@ -1069,13 +1067,13 @@ class AccountInvoiceElectronic(models.Model):
         total_invoices = len(invoices)
         current_invoice = 0
 
-        days_left = self.env.user.company_id.get_days_left()
-        message = self.env.user.company_id.get_message_to_send()
+        days_left = self.company_id.get_days_left()
+        message = self.company_id.get_message_to_send()
         for inv in invoices:
             try:
                 current_invoice += 1
 
-                if days_left <= self.env.user.company_id.range_days:
+                if days_left <= self.company_id.range_days:
                     inv.message_post(
                         body=message,
                         subject=_('IMPORTANT NOTICE!!'),
@@ -1687,10 +1685,10 @@ class AccountInvoiceElectronic(models.Model):
             super().action_post()
             if not inv.number_electronic:
                 # if journal doesn't have sucursal use default from company
-                sucursal_id = inv.journal_id.sucursal or self.env.user.company_id.sucursal_MR
+                sucursal_id = inv.journal_id.sucursal or self.company_id.sucursal_MR
 
                 # if journal doesn't have terminal use default from company
-                terminal_id = inv.journal_id.terminal or self.env.user.company_id.terminal_MR
+                terminal_id = inv.journal_id.terminal or self.company_id.terminal_MR
 
                 response_json = api_facturae.get_clave_hacienda(
                     inv,
@@ -1804,48 +1802,6 @@ class AccountInvoiceElectronic(models.Model):
         url = f'/web/binary/download_document?tab_id={tab_id}&invoice_id={invoice_id}'
         return url
 
-    # def action_invoice_sent_mass(self):
-    #     if self.invoice_id.move_type in ['in_invoice', 'in_refund']:
-    #         template_name = 'cr_electronic_invoice.email_template_invoice_vendor'
-    #         email_template = self.env.ref(template_name, raise_if_not_found=False)
-    #     else:
-    #         email_template = self.env.ref('account.email_template_edi_invoice', raise_if_not_found=False)
-    #
-    #     lang = False
-    #     if email_template:
-    #         lang = email_template._render_lang(self.ids)[self.id]
-    #     if not lang:
-    #         lang = get_lang(self.env).code
-    #
-    #     if self.env.user.company_id.frm_ws_ambiente == 'disabled':
-    #         pass
-    #     elif self.partner_id and self.partner_id.email:
-    #         domain = [
-    #             ('res_model', '=', 'account.move'),
-    #             ('res_id', '=', self.id),
-    #             ('res_field', '=', 'xml_comprobante')
-    #         ]
-    #         attachment = self.env['ir.attachment'].sudo().search(domain, limit=1)
-    #
-    #         if attachment:
-    #
-    #             domain_resp = [
-    #                 ('res_model', '=', 'account.move'),
-    #                 ('res_id', '=', self.id),
-    #                 ('res_field', '=', 'xml_respuesta_tributacion')
-    #             ]
-    #             attachment_resp = self.env['ir.attachment'].sudo().search(domain_resp, limit=1)
-    #
-    #             if attachment_resp:
-    #                 attach_copy = attachment.copy()
-    #                 attach_resp_copy = attachment_resp.copy()
-    #                 email_template.attachment_ids = [(6, 0, [attach_copy.id, attach_resp_copy.id])]
-    #                 email_template.with_context(type='binary',
-    #                                             default_type='binary').send_mail(self.id, raise_exception=False, force_send=True)
-    #                 _logger.error(
-    #                                     'E-INV CR - MASS SEND - Exitoso: %s',
-    #                                     self.sequence)
-    #                 email_template.attachment_ids = [(5, 0, 0)]
     def action_invoice_sent_mass(self):
         if self.invoice_id.move_type in ['in_invoice', 'in_refund']:
             template_name = 'account.email_template_edi_invoice'
@@ -1861,7 +1817,7 @@ class AccountInvoiceElectronic(models.Model):
             lang = get_lang(self.env).code
 
         # Verificamos si el ambiente de la compañía está desactivado
-        if self.env.user.company_id.frm_ws_ambiente == 'disabled':
+        if self.company_id.frm_ws_ambiente == 'disabled':
             pass
         elif self.partner_id and self.partner_id.email:
             # Agregamos filtro de compañía en el dominio para buscar el adjunto de comprobante
@@ -1869,7 +1825,6 @@ class AccountInvoiceElectronic(models.Model):
                 ('res_model', '=', 'account.move'),
                 ('res_id', '=', self.id),
                 ('res_field', '=', 'xml_comprobante'),
-                ('company_id', '=', self.company_id.id)  # Filtro por compañía
             ]
             attachment = self.env['ir.attachment'].sudo().search(domain, limit=1)
 
@@ -1883,7 +1838,6 @@ class AccountInvoiceElectronic(models.Model):
                 ('res_model', '=', 'account.move'),
                 ('res_id', '=', self.id),
                 ('res_field', '=', 'xml_respuesta_tributacion'),
-                ('company_id', '=', self.company_id.id)  # Filtro por compañía
             ]
             attachment_resp = self.env['ir.attachment'].sudo().search(domain_resp, limit=1)
 
@@ -1912,14 +1866,12 @@ class AccountInvoiceElectronic(models.Model):
     def action_invoice_sent(self):
         self.ensure_one()
 
-        # Determinar la plantilla de correo a usar
         if self.invoice_id.move_type in ['in_invoice', 'in_refund']:
             template_name = 'cr_electronic_invoice.email_template_invoice_vendor'
             email_template = self.env.ref(template_name, raise_if_not_found=False)
         else:
             email_template = self.env.ref('account.email_template_edi_invoice', raise_if_not_found=False)
 
-        # Limpiar cualquier adjunto previo en la plantilla
         email_template.attachment_ids = [(5, 0, 0)]
 
         lang = False
@@ -1928,12 +1880,10 @@ class AccountInvoiceElectronic(models.Model):
         if not lang:
             lang = get_lang(self.env).code
 
-        # Verificar si el entorno de Hacienda está deshabilitado
         if self.env.user.company_id.frm_ws_ambiente == 'disabled':
             pass
-        elif self.partner_id and self.partner_id.email:  # Verificar que el partner tenga un email
+        elif self.partner_id and self.partner_id.email:  # and not i.partner_id.opt_out:
 
-            # Adjuntar XML de la factura
             domain = [
                 ('res_model', '=', self._name),
                 ('res_id', '=', self.id),
@@ -1941,7 +1891,8 @@ class AccountInvoiceElectronic(models.Model):
             ]
             attachment = self.env['ir.attachment'].sudo().search(domain, limit=1)
             if attachment:
-                # Buscar y adjuntar XML de la respuesta tributaria
+                # attachment.name = self.fname_xml_comprobante
+
                 domain_resp = [
                     ('res_model', '=', self._name),
                     ('res_id', '=', self.id),
@@ -1950,16 +1901,17 @@ class AccountInvoiceElectronic(models.Model):
                 attachment_resp = self.env['ir.attachment'].sudo().search(domain_resp, limit=1)
 
                 if attachment_resp:
-                    # Adjuntar ambos archivos (comprobante y respuesta tributaria)
-                    email_template.attachment_ids = [(6, 0, [attachment.id, attachment_resp.id])]
+                    attach_copy = attachment.copy()
+                    attach_resp_copy = attachment_resp.copy()
+                    email_template.attachment_ids = [(6, 0, [attach_copy.id, attach_resp_copy.id])]
                 else:
                     raise UserError(_('Response XML from Hacienda has not been received'))
             else:
                 raise UserError(_('Invoice XML has not been generated for id:' + str(self.id)))
-        else:
-            raise UserError(_('Partner is not assigned to this invoice'))
 
-        # Preparar el contexto para enviar el correo
+        else:
+            raise UserError(_('Partner is not assigne to this invoice'))
+
         compose_form = self.env.ref('account.account_move_send_form', raise_if_not_found=False).sudo()
         ctx = dict(
             default_model='account.move',
@@ -1980,9 +1932,10 @@ class AccountInvoiceElectronic(models.Model):
             'view_type': 'form',
             'view_mode': 'form',
             'res_model': 'account.move.send',
-            'views': [(compose_form.id, 'form')],
+            'views': [
+                (compose_form.id, 'form')
+            ],
             'view_id': compose_form.id,
             'target': 'new',
             'context': ctx,
         }
-

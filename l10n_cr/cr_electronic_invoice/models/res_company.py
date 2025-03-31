@@ -203,6 +203,11 @@ class CompanyElectronic(models.Model):
                 }
                 return {'value': {'phone': ''}, 'warning': alert}
 
+    @api.onchange('signature')
+    def _onchange_signature(self):
+        if self.signature:
+            self.write({'date_expiration_sign': api_facturae.p12_expiration_date(self.signature, self.frm_pin)})
+
     # -------------------------------------------------------------------------
     # PUBLIC ACTIONS
     # -------------------------------------------------------------------------
@@ -334,8 +339,8 @@ class CompanyElectronic(models.Model):
 
     def _cron_send_email_notifications(self):
         today = datetime.now()
-        date_due = self.env.user.company_id.date_expiration_sign
-        range_day = self.env.user.company_id.range_days
+        date_due = self.env.company.date_expiration_sign
+        range_day = self.env.company.range_days
 
         range_date = date_due - timedelta(days=range_day)
         if today >= range_date:
@@ -351,7 +356,7 @@ class CompanyElectronic(models.Model):
 
             template.write(template_values)
 
-            for user in self.env.user.company_id.send_user_ids:
+            for user in self.env.company.send_user_ids:
                 if user.email:
                     template.with_context(lang=user.lang).send_mail(user.id, force_send=True, raise_exception=True)
 
@@ -362,8 +367,7 @@ class CompanyElectronic(models.Model):
     def get_days_left(self):
         today = datetime.today()
         date_due = self.date_expiration_sign
-        range_days = date_due - today
-
+        range_days = date_due - today if date_due else today - today
         return range_days.days
 
     def get_message_to_send(self):

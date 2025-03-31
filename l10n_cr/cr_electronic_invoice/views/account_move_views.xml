@@ -15,7 +15,7 @@
                             style="padding: 0; vertical-align: baseline;">Send Document</button>
                 </div>
                 <div class="alert alert-warning mb-0" role="alert"
-                     invisible="(state_tributacion not in ('procesando')) or (state  in ('draft', 'cancel'))">
+                    invisible="state_tributacion not in ('procesando') or state  in ('draft', 'cancel')">
                     The document was issued successfully, however we still do not have the answer, it will be consulted
                     in 10 minutes, if you wish to consult it manually press
                     <button class="oe_link" type="object" name="action_check_hacienda"
@@ -32,9 +32,10 @@
                 <button name="action_send_mrs_to_hacienda" type="object" string="Send Receiver Message"
                         invisible="(move_type not in ('in_invoice', 'in_refund', 'entry')) or (tipo_documento == 'FEC')"/>
                 <button name="action_create_fec" type="object" string="Send FEC"
-                        invisible="(tipo_documento != 'FEC') or (state_tributacion not in  (False,'rechazado', 'error'))"/>
+                        invisible="tipo_documento != 'FEC' or state_tributacion not in (False,'rechazado','error')"/>
                 <button name="create_partner_from_xml" class="oe_highlight" type="object" string="Create Provider"
-                        invisible="(move_type in ('entry', 'out_invoice', 'out_refund')) or (partner_id !=  False) or (xml_supplier_approval == False)"/>
+                        invisible="move_type in ('entry', 'out_invoice', 'out_refund') or partner_id != False or xml_supplier_approval == False"/>
+
             </xpath>
 
             <xpath expr="//field[@name='narration']/.." position="inside">
@@ -45,14 +46,15 @@
             <field name="partner_id" position="after">
                 <field name="economic_activities_ids" string="Actividades Económicas" invisible="1" readonly="1"
                        options='{"active_test": [("type","in", ("in_invoice", "in_refund"))]}'/>
-                <field name="economic_activity_id" string="Actividad Económica"
-                       options="{'no_create': True}"
-                       domain="[('active', '=', True)]"
-                       required="(move_type in ('out_invoice', 'out_refund','in_invoice', 'in_refund'))"/>
-                <field name="number_electronic" string="Número Electrónico" readonly="1"
-                       invisible="(move_type not in ('out_invoice', 'out_refund','in_invoice', 'in_refund'))"/>
-                <field name="sequence" string="Consecutivo" readonly="1"
-                       invisible="(move_type not in ('out_invoice', 'out_refund','in_invoice', 'in_refund'))"/>
+                <field name="economic_activity_id"
+                       required="move_type in ('out_invoice', 'out_refund') or tipo_documento == 'FEC'"
+                       invisible="move_type not in ('out_invoice', 'out_refund') or tipo_documento != 'FEC'"
+                       domain="[('id', 'in', economic_activities_ids),]"
+                       options='{"no_open": True, "no_create": True, "active_test": [("type","in", ("in_invoice", "in_refund"))]}'/>
+                <field name="number_electronic" readonly="1"
+                       invisible="move_type not in ('out_invoice','out_refund','in_invoice','in_refund')"/>
+                <field name="sequence" readonly="1"
+                       invisible="move_type not in ('out_invoice','out_refund','in_invoice','in_refund')"/>
             </field>
 
             <field name="invoice_date" position="attributes">
@@ -64,18 +66,18 @@
                        invisible="(move_type not in ('out_invoice', 'out_refund','in_invoice', 'in_refund'))"/>
                 <field name="tipo_documento"
                        readonly="(state != 'draft')"
-                       invisible="(move_type not in ('out_invoice', 'out_refund','in_invoice', 'in_refund'))"
-                       required="(move_type in ('out_invoice', 'out_refund','in_invoice', 'in_refund'))"/>
+                       invisible="move_type not in ('out_invoice','out_refund','in_invoice','in_refund')"
+                       required="move_type in ('out_invoice','out_refund','in_invoice', 'in_refund')"/>
                 <field name="payment_methods_id"
                        readonly="(state != 'draft')"
-                       invisible="(move_type not in ('out_invoice', 'out_refund','in_invoice', 'in_refund'))"
-                       required="(move_type in ('out_invoice', 'out_refund','in_invoice', 'in_refund'))"/>
+                       invisible="move_type not in ('out_invoice', 'out_refund','in_invoice', 'in_refund')"
+                       required="move_type in ('out_invoice', 'out_refund','in_invoice', 'in_refund')"/>
             </field>
 
             <xpath expr="//field[@name='invoice_line_ids']//tree//field[@name='name']" position="after">
                 <field name="categ_name" invisible="1" readonly="1"/>
                 <field name="product_code" invisible="1" readonly="1"/>
-                <field name="third_party_id" invisible="(product_code != '04')" optional="hide"/>
+                <field name="third_party_id" invisible="product_code != '04'" optional="hide"/>
                 <field name="cabys_code" readonly="1" optional="hide"/>
             </xpath>
             <!-- Move views -->
@@ -102,26 +104,26 @@
 
             <xpath expr="(//field[@name='tax_totals'])" position="after">
                 <field name="amount_tax_electronic_invoice"
-                       invisible="(move_type in  ('out_invoice', 'out_refund'))"/>
+                       invisible="move_type in ('out_invoice','out_refund')"/>
                 <field name="amount_total_electronic_invoice"
                        invisible="(move_type in ('out_invoice', 'out_refund'))"/>
             </xpath>
 
             <xpath expr="//page[2]" position="after">
                 <page name="fe_invoice_data" string="Electronic Information"
-                      invisible="(move_type not in ('out_invoice', 'out_refund','in_invoice', 'in_refund'))">
+                      invisible="move_type not in ('out_invoice','out_refund','in_invoice','in_refund')">
                     <field name="qr_image" widget="image" invisible="1"/>
 
                     <group id="fe_tab_group" col="2">
                         <group string="Electronic Acceptance" name="fe_in_info_group" colspan="2" col="5"
-                               invisible="(tipo_documento == 'FEC') or (move_type in ('out_invoice', 'out_refund'))">
+                            invisible="tipo_documento == 'FEC' or move_type in ('out_invoice','out_refund')">
                             <field name="fname_xml_supplier_approval" invisible="1" colspan="5"/>
                             <field name="xml_supplier_approval" filename="fname_xml_supplier_approval" colspan="4"
-                                   invisible="(tipo_documento == 'FEC') or (move_type in ('out_invoice', 'out_refund'))"/>
+                                   invisible="tipo_documento == 'FEC' or move_type in ('out_invoice','out_refund')"/>
                             <button name="load_xml_data" type="object" string="Cargar datos del XML" colspan="1"
-                                    invisible="(xml_supplier_approval == False) or (move_type in ('out_invoice', 'out_refund')) or (tipo_documento == 'FEC') or (state != 'draft')"/>
+                                    invisible="xml_supplier_approval == False or move_type in ('out_invoice','out_refund') or tipo_documento == 'FEC' or state != 'draft'"/>
                             <field name="state_invoice_partner" colspan="5"
-                                   invisible="(move_type in ('out_invoice', 'out_refund')) or (tipo_documento == 'FEC')"/>
+                                   invisible="move_type in ('out_invoice','out_refund') or tipo_documento == 'FEC'"/>
                         </group>
                         <group name="eref_info_group" colspan="2">
                             <group string="Electronic Document Reference" name="eref_info_group1" colspan="2">
@@ -130,8 +132,8 @@
                                 <field name="invoice_id" domain="[('number_electronic', '!=', False)]"
                                        readonly="(state != 'draft')"/>
                                 <field name="not_loaded_invoice"
-                                       readonly="(state != 'draft')"
-                                       invisible="(invoice_id  != False)"/>
+                                       readonly="state != 'draft'"
+                                       invisible="invoice_id  != False"/>
                                 <field name="not_loaded_invoice_date"
                                        readonly="(state != 'draft')"
                                        invisible="(invoice_id != False)"/>

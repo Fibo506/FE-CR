@@ -34,9 +34,9 @@ class PartnerElectronic(models.Model):
     )
     inscribed = fields.Boolean(
         string="Inscribed",
+        default=False,
         readonly=True,
-        copy=False,
-        default=False
+        copy=False
     )
 
     # === Economic Activity fields === #
@@ -186,9 +186,7 @@ class PartnerElectronic(models.Model):
                 for activity in activities:
                     if activity["estado"] == "A":
                         a_codes.append(activity["codigo"])
-                economic_activities = self.env['economic.activity'].with_context(active_test=False).search([('code',
-                                                                                                             'in',
-                                                                                                             a_codes)])
+                economic_activities = self.env['economic.activity'].with_context(active_test=False).search([('code','in', a_codes)])
 
                 self.economic_activities_ids = economic_activities
                 self.name = json_response["name"]
