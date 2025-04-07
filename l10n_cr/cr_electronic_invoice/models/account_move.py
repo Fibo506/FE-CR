@@ -1037,7 +1037,10 @@ class AccountInvoiceElectronic(models.Model):
             for inv in self:
                 token_m_h = api_facturae.get_token_hacienda(inv, inv.company_id.frm_ws_ambiente)
                 api_facturae.consulta_documentos(self, inv, self.company_id.frm_ws_ambiente, token_m_h, False, False)
-
+    
+    def action_check_hacienda_for_invoices(self):
+        self._check_hacienda_for_invoices()
+    
     # def action_check_errors(self):
     #     if self.company_id.frm_ws_ambiente != 'disabled':
     #
