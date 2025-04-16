@@ -1862,7 +1862,6 @@ class AccountInvoiceElectronic(models.Model):
                 # Limpiamos los adjuntos para evitar problemas en futuras llamadas
                 email_template.attachment_ids = [(5, 0, 0)]
 
-
     def action_invoice_sent(self):
         self.ensure_one()
 
