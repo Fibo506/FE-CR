@@ -11,24 +11,18 @@ import pytz
 import time
 import phonenumbers
 import random
-from 
-graphy import x509
 from cryptography.hazmat.backends import default_backend
+from cryptography.hazmat.primitives.serialization import Encoding, PrivateFormat
+from cryptography.hazmat.primitives.serialization.pkcs12 import load_key_and_certificates
 from decimal import Decimal, ROUND_DOWN
 
 from odoo import _
 from odoo.exceptions import UserError
 from xml.sax.saxutils import escape
 from ..xades.context2 import XAdESContext2, PolicyId2, create_xades_epes_signature
-
 from lxml import etree
 
-try:
-    from OpenSSL import crypto
-except(ImportError, IOError) as err:
-    logging.info(err)
 
-from cryptography.hazmat.primitives.serialization import pkcs12
 
 # PARA VALIDAR JSON DE RESPUESTA
 # from .. import extensions
@@ -47,9 +41,12 @@ def sign_xml(cert, password, xml, policy_id='https://cdn.comprobanteselectronico
 
     root.append(signature)
     ctx = XAdESContext2(policy)
-    password_bytes = bytes(password, 'utf-8')
-    certificate = crypto.load_pkcs12(base64.b64decode(cert), password_bytes)
-    ctx.load_pkcs12(certificate)
+    private_key, cert, ca_certificates = load_key_and_certificates(base64.b64decode(cert),bytes(password, 'utf-8'))
+
+    # Directly Assign private key and certificate.
+    ctx.private_key = private_key
+    ctx.x509 = cert
+    ctx.ca_certificates = ca_certificates or []
     ctx.sign(signature)
 
     return etree.tostring(root, encoding='UTF-8', method='xml', xml_declaration=True, with_tail=False)
@@ -1341,7 +1338,7 @@ def p12_expiration_date(p12file, password):
     try:
         password_bytes = bytes(password, 'utf-8')
 
-        private_key, cert, additional_certificates = pkcs12.load_key_and_certificates(
+        private_key, cert, additional_certificates = load_key_and_certificates(
             base64.b64decode(p12file),
             password_bytes
         )

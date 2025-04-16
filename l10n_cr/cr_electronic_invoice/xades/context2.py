@@ -15,6 +15,7 @@ import pytz
 import random
 from . import get_reversed_rdns_name
 
+
 __all__ = ['XAdESContext2', 'PolicyId2',
            'PolicyId2Exception', 'create_xades_epes_signature']
 
@@ -66,7 +67,7 @@ def create_xades_epes_signature(sign_date=datetime.datetime.now(pytz.timezone('U
         signature, 'XadesObjects', 'xades')
     props = template.create_signed_properties(
         qualifying, name=signed_properties_id, datetime=sign_date)
-    xmlsig.template.add_claimed_role(props, 'Emisor')
+    claimed_role = template.add_claimed_role(props, 'Emisor')
 
     # Manually add DataObjectFormat
     data_obj = xmlsig.utils.create_node(
