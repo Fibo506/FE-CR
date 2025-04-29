@@ -1040,6 +1040,11 @@ class AccountInvoiceElectronic(models.Model):
     
     def action_check_hacienda_for_invoices(self):
         self._check_hacienda_for_invoices()
+    
+    # def action_check_errors(self):
+    #     if self.company_id.frm_ws_ambiente != 'disabled':
+    #
+
 
     def action_create_fec(self):
         if self.company_id.frm_ws_ambiente == 'disabled':
@@ -1360,9 +1365,7 @@ class AccountInvoiceElectronic(models.Model):
                                 line["impuesto"] = taxes
                                 line["impuestoNeto"] = round(_line_tax, 5)
 
-                            # Si no hay product_uom_id se asume como Servicio
-                            service = ['Service', 'Services', 'Servicio', 'Servicios']
-                            if not inv_line.product_uom_id or inv_line.product_uom_id.category_id.name in service:
+                            if inv_line.product_id.detailed_type == 'service':
                                 if taxes:
                                     if _tax_exoneration:
                                         if _percentage_exoneration < 1:
