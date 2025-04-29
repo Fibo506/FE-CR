@@ -18,7 +18,7 @@
                     invisible="state_tributacion not in ('procesando') or state  in ('draft', 'cancel')">
                     The document was issued successfully, however we still do not have the answer, it will be consulted
                     in 10 minutes, if you wish to consult it manually press
-                    <button class="oe_link" type="object" name="action_check_hacienda"
+                    <button class="oe_link" type="object" name="action_check_hacienda_for_invoices"
                             style="padding: 0; vertical-align: baseline;">Consult Document</button>
                 </div>
             </xpath>
