@@ -1,6 +1,6 @@
 {
     'name': 'Costa Rica Currency Adapter',
-    'version': '17.0.0.0.0',
+    'version': '18.0.0.0.0',
     'author': 'Singulary',
     'license': 'AGPL-3',
     'category': 'Accounting/Accounting',

@@ -73,26 +73,26 @@
                        required="move_type in ('out_invoice', 'out_refund','in_invoice', 'in_refund')"/>
             </field>
 
-            <xpath expr="//field[@name='invoice_line_ids']//tree//field[@name='name']" position="after">
+            <xpath expr="//field[@name='invoice_line_ids']//list//field[@name='name']" position="after">
                 <field name="categ_name" invisible="1" readonly="1"/>
                 <field name="product_code" invisible="1" readonly="1"/>
                 <field name="third_party_id" invisible="product_code != '04'" optional="hide"/>
                 <field name="cabys_code" readonly="1" optional="hide"/>
             </xpath>
             <!-- Move views -->
-            <!-- <xpath expr="//field[@name='line_ids']//tree//field[@name='name']" position="after">
+            <!-- <xpath expr="//field[@name='line_ids']//list//field[@name='name']" position="after">
                 <field name="categ_name" invisible="1" readonly="1"/>
                 <field name="product_code" invisible="1" readonly="1"/>
                 <field name="third_party_id" attrs="{'invisible':[('product_code', '!=', '04')]}" optional="hide"/>
                 <field name="cabys_code" readonly="1" optional="hide"/>
             </xpath> -->
 
-            <xpath expr="//field[@name='invoice_line_ids']//tree//field[@name='discount']" position="after">
+            <xpath expr="//field[@name='invoice_line_ids']//list//field[@name='discount']" position="after">
                 <field name="discount_note" optional="hide"/>
                 <field name="tariff_head" optional="hide"/>
             </xpath>
             <!-- Move views -->
-            <!-- <xpath expr="//field[@name='line_ids']//tree//field[@name='discount']" position="after">
+            <!-- <xpath expr="//field[@name='line_ids']//list//field[@name='discount']" position="after">
                 <field name="discount_note" optional="hide"/>
                 <field name="tariff_head" optional="hide"/>
             </xpath> -->
@@ -153,16 +153,16 @@
         </field>
     </record>
 
-    <record id="view_move_tree_inherit" model="ir.ui.view">
-        <field name="name">account.invoice.tree.inherit</field>
+    <record id="view_move_list_inherit" model="ir.ui.view">
+        <field name="name">account.invoice.list.inherit</field>
         <field name="model">account.move</field>
-        <field name="inherit_id" ref="account.view_invoice_tree"/>
+        <field name="inherit_id" ref="account.view_invoice_list"/>
         <field name="arch" type="xml">
-            <tree position="attributes">
+            <list position="attributes">
                 <attribute name="decoration-danger">
                     state_tributacion == 'rechazado'
                 </attribute>
-            </tree>
+            </list>
             <field name="state" position="before">
                 <field name="tipo_documento" string="Doc Elect." optional="show"/>
                 <field name="sequence" string="Consecutive" optional="show"/>
