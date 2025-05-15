@@ -27,11 +27,10 @@
     'assets': {
         'web.assets_backend': [
             'web.core',
-            'web.ListController',
-            'cabys.cabys_import_button.js',
+            'web.ListController',            'cabys/static/src/js/cabys_import_button.js',
       ],
         'web.assets_qweb': [
-            'cabys.cabys_templates.xml',
+            'cabys/static/src/xml/cabys_templates.xml',
         ]
     },
     'installable': True,

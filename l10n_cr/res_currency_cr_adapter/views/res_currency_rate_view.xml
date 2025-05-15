@@ -5,7 +5,7 @@
     <record id="view_currency_rate_list_inherit_extension" model="ir.ui.view">
         <field name="name">res.currency.rate.list.inherit.extension</field>
         <field name="model">res.currency.rate</field>
-        <field name="inherit_id" ref="base.view_currency_rate_list"/>
+        <field name="inherit_id" ref="base.view_currency_rate_tree"/>
         <field name="arch" type="xml">
             <field name="write_date" position="before">
                 <field name='inverse_original_rate_2' digits="[12,12]" optional="show"/>
