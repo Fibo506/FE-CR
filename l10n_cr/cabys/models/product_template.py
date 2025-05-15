@@ -17,11 +17,10 @@ class ProductTemplate(models.Model):
     cabys_tax = fields.Float(related='cabys_product_id.impuesto', readonly=True)
 
 
-    registro_medicamento = fields.Char(string='Registro de Medicamento', required=True)
+    registro_medicamento = fields.Char(string='Registro de Medicamento',)
     forma_farmaceutica_id = fields.Many2one(
         comodel_name='pharmaceutical.form',
         string='Forma Farmaceutica',
-        required=True,
     )
 
     # Campo para indicar si los campos deben mostrarse
