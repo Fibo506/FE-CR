@@ -1365,7 +1365,7 @@ class AccountInvoiceElectronic(models.Model):
                                 line["impuesto"] = taxes
                                 line["impuestoNeto"] = round(_line_tax, 5)
 
-                            if inv_line.product_id.detailed_type == 'service':
+                            if inv_line.product_id.type == 'service':
                                 if taxes:
                                     if _tax_exoneration:
                                         if _percentage_exoneration < 1:
