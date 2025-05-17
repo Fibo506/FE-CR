@@ -22,6 +22,8 @@
         'views/res_company_views.xml',
         'views/account_move.xml'
         # 'wizard/cr_multiple_invoice_validation_wz_view.xml',
-    ]
-    ,
+    ],
+    'installable': True,
+
+
 }
