@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 from odoo import api, fields, models, _
-# Reemplazar la importación de xlrd con pandas
-# from xlrd import open_workbook
-import pandas as pd
+# Mantenemos la importación original
+from xlrd import open_workbook
 import logging
 import base64
 import urllib.request
@@ -10,9 +9,17 @@ import tempfile
 import os
 from odoo.exceptions import UserError
 
+# Añadimos esta importación para compatibilidad con xlsx
+try:
+    import pandas as pd
+
+    PANDAS_INSTALLED = True
+except ImportError:
+    PANDAS_INSTALLED = False
+
 _logger = logging.getLogger(__name__)
 
-# Mantener todas las constantes de mapeo igual que en el código original
+# Mantenemos todas las constantes sin cambios
 # Categories description and codes
 categories_map = [
     {
@@ -172,6 +179,95 @@ class CabysCatalogImportWizard(models.TransientModel):
             'res_id': self.id,
         }
 
+    # Esta función ayuda a leer el archivo Excel independientemente de si es .xls o .xlsx
+    def _read_excel_file(self, excel_file):
+        """
+        Lee un archivo Excel y devuelve un objeto que se puede usar como un libro de XLRD
+        Soporta tanto XLS como XLSX usando xlrd o pandas según corresponda
+        """
+        # Verificar si es un archivo xlsx por su firma (PK)
+        if excel_file[:2] == b'PK':  # Firma de archivos .xlsx (ZIP)
+            if not PANDAS_INSTALLED:
+                raise UserError(_("El archivo es formato XLSX y se requiere pandas para procesarlo. "
+                                  "Por favor instale pandas: pip install pandas openpyxl"))
+
+            # Crear un archivo temporal para pandas
+            with tempfile.NamedTemporaryFile(delete=False, suffix='.xlsx') as temp_file:
+                temp_file.write(excel_file)
+                temp_name = temp_file.name
+
+            try:
+                # Usar pandas para leer el archivo
+                data_frame = pd.read_excel(temp_name, engine='openpyxl')
+
+                # Crear un objeto tipo xlrd.book para mantener compatibilidad
+                class XlrdBookCompatibility:
+                    def __init__(self, df):
+                        self.df = df
+
+                    def sheet_by_index(self, index):
+                        return XlrdSheetCompatibility(self.df)
+
+                class XlrdSheetCompatibility:
+                    def __init__(self, df):
+                        self.df = df
+                        self.name = "Sheet1"
+
+                    def cell(self, row_idx, col_idx):
+                        class CellValue:
+                            def __init__(self, value):
+                                self.value = value
+
+                        try:
+                            return CellValue(self.df.iloc[row_idx, col_idx])
+                        except IndexError:
+                            return CellValue("")
+
+                    def get_rows(self):
+                        class RowIterator:
+                            def __init__(self, df):
+                                self.df = df
+                                self.current_row = 0
+                                self.max_rows = len(df)
+
+                            def __iter__(self):
+                                return self
+
+                            def __next__(self):
+                                if self.current_row >= self.max_rows:
+                                    raise StopIteration
+
+                                row_data = self.df.iloc[self.current_row]
+                                self.current_row += 1
+
+                                class CellValue:
+                                    def __init__(self, value):
+                                        self.value = value
+
+                                return [CellValue(row_data.iloc[i]) for i in range(len(row_data))]
+
+                        return RowIterator(self.df)
+
+                workbook = XlrdBookCompatibility(data_frame)
+
+                # Eliminar el archivo temporal
+                os.unlink(temp_name)
+
+                return workbook
+
+            except Exception as e:
+                # Asegurar que se elimine el archivo temporal
+                if os.path.exists(temp_name):
+                    os.unlink(temp_name)
+                raise UserError(_("Error al procesar archivo Excel XLSX: %s") % str(e))
+
+        else:
+            # Es un archivo .xls, usar xlrd directamente
+            try:
+                return open_workbook(file_contents=excel_file)
+            except Exception as e:
+                raise UserError(_("Error al procesar archivo Excel XLS: %s") % str(e))
+
     def _update_catalog_from_excel_file(self):
         ''' Update the Cabys catalog with the data in the catalog file.
         '''
@@ -189,139 +285,131 @@ class CabysCatalogImportWizard(models.TransientModel):
             excel_file = base64.b64decode(self.cabys_excel_file)
             _logger.info('Loading Cabys catalog from Excel file')
 
-            # Creamos un archivo temporal para procesar con pandas
-            with tempfile.NamedTemporaryFile(delete=False, suffix='.xlsx') as temp_file:
-                temp_file.write(excel_file)
-                temp_name = temp_file.name
+            # Usar nuestra función compatible con ambos formatos
+            workbook = self._read_excel_file(excel_file)
 
-            try:
-                # Leer el archivo con pandas
-                df = pd.read_excel(temp_name, engine='openpyxl')
+            _logger.info('workbook %s' % workbook)
+            # get first sheet, that's where the data is
+            xl_sheet = workbook.sheet_by_index(0)
+            _logger.info('sheet %s name %s' % (xl_sheet, xl_sheet.name))
+            # get rows of data from workbook sheet
+            rows = xl_sheet.get_rows()
+            # skip first two header rows
+            rows.__next__()
+            rows.__next__()
 
-                # Eliminar el archivo temporal
-                os.unlink(temp_name)
+            # here we will keep all categories data and products data
+            all_categories = {}
+            all_products = {}
 
-                # Ignorar las primeras dos filas (encabezados)
-                df = df.iloc[2:]
+            for category_map in categories_map:
+                all_categories[category_map['category']] = {}
 
-                # here we will keep all categories data and products data
-                all_categories = {}
-                all_products = {}
-
+            # iterate over every row in the catalog file
+            for row in rows:
+                # get every subcategory for this row
                 for category_map in categories_map:
-                    all_categories[category_map['category']] = {}
+                    category = category_map['category']
+                    code = row[category_map['code']].value
+                    description = row[category_map['description']].value
+                    if code not in all_categories[category]:
+                        vals = {'code': code, 'description': description}
+                        if 'subcategory' in category_map:
+                            vals['subcategory'] = row[category_map['subcategory']].value
+                        all_categories[category][code] = vals
 
-                # iterate over every row in the catalog file
-                for _, row in df.iterrows():
-                    # get every subcategory for this row
-                    for category_map in categories_map:
-                        category = category_map['category']
-                        code = row.iloc[category_map['code']]
-                        description = row.iloc[category_map['description']]
-                        if code not in all_categories[category]:
-                            vals = {'code': code, 'description': description}
-                            if 'subcategory' in category_map:
-                                vals['subcategory'] = row.iloc[category_map['subcategory']]
-                            all_categories[category][code] = vals
+                # process product
+                category = row[products_map['category']].value
+                description = row[products_map['description']].value
+                code = row[products_map['code']].value
+                tax_data = row[products_map['tax']].value
+                tax_converted = 0.0
+                if isinstance(tax_data, str) and '%' in tax_data:
+                    # Remueve el símbolo de porcentaje y luego divide por 100
+                    tax_converted = float(tax_data[:-1]) / 100
+                else:
+                    try:
+                        tax_converted = float(tax_data * 100)
+                    except (ValueError, TypeError):
+                        # Si el valor no es numérico, establece un valor por defecto
+                        tax_converted = 0.0
+                tax = tax_converted
 
-                    # process product
-                    category = row.iloc[products_map['category']]
-                    description = row.iloc[products_map['description']]
-                    code = row.iloc[products_map['code']]
-                    tax_data = row.iloc[products_map['tax']]
-                    tax_converted = 0.0
-                    if isinstance(tax_data, str) and '%' in tax_data:
-                        # Remueve el símbolo de porcentaje y luego divide por 100
-                        tax_converted = float(tax_data[:-1]) / 100
-                    else:
-                        try:
-                            tax_converted = float(tax_data * 100)
-                        except (ValueError, TypeError):
-                            # Si el valor no es numérico, establece un valor por defecto
-                            tax_converted = 0.0
-                    tax = tax_converted
+                first_description = row[products_map['first_description']].value
+                second_description = row[products_map['second_description']].value
 
-                    first_description = row.iloc[products_map['first_description']]
-                    second_description = row.iloc[products_map['second_description']]
+                all_products[code] = {
+                    'name': description,
+                    'codigo': code,
+                    'impuesto': tax,
+                    'cabys_categoria8_id': category,
+                    'first_description': first_description,
+                    'second_description': second_description
+                }
 
-                    all_products[code] = {
-                        'name': description,
-                        'codigo': code,
-                        'impuesto': tax,
-                        'cabys_categoria8_id': category,
-                        'first_description': first_description,
-                        'second_description': second_description
-                    }
+            # sort categories in order to process them orderly
+            order_categories = all_categories.keys()
+            order_categories = [int(cat) for cat in order_categories]
+            order_categories.sort()
+            order_categories = [str(cat) for cat in order_categories]
 
-                # sort categories in order to process them orderly
-                order_categories = all_categories.keys()
-                order_categories = [int(cat) for cat in order_categories]
-                order_categories.sort()
-                order_categories = [str(cat) for cat in order_categories]
-
-                # create categories if they don't exist
-                for category in order_categories:
-                    _logger.info('Processing category %s with %s records' %
-                                 (category, len(all_categories[category])))
-                    records_data = all_categories[category]
-                    object_name = 'cabys.categoria%s' % category
-                    for category_data in records_data:
-                        record_data = records_data[category_data]
-                        record_id = self.env[object_name].search(
-                            [('codigo', '=', record_data['code'])])
-                        if not record_id:
-                            vals = {
-                                'codigo': record_data['code'], 'name': record_data['description']}
-                            if 'subcategory' in record_data:
-                                subcategory_field = 'cabys_categoria%s_id' % (
-                                        int(category) - 1)
-                                vals[subcategory_field] = all_categories[str(
-                                    (int(category) - 1))][record_data['subcategory']]['id']
-                            record_id = self.env[object_name].create(vals)
-                            categories_new.append(vals['codigo'])
-                        all_categories[category][category_data]['id'] = record_id.id
-
-                # up to this point all categories should exist
-                # we now process the products
-                _logger.info('Processing %s products in catalog' %
-                             len(all_products))
-
-                for code in all_products:
-                    # get record data
-                    product = all_products[code]
-                    product['cabys_categoria8_id'] = all_categories['8'][product['cabys_categoria8_id']]['id']
-                    # search record
-                    record_id = self.env['cabys.producto'].search(
-                        [('codigo', '=', code)])
-                    # if it exist, check differences
-                    if record_id:
-                        vals = {}
-                        if record_id.name != product['name']:
-                            vals['name'] = product['name']
-                        if record_id.cabys_categoria8_id.id != product['cabys_categoria8_id']:
-                            vals['cabys_categoria8_id'] = product['cabys_categoria8_id']
-                        if record_id.impuesto != product['impuesto']:
-                            vals['impuesto'] = product['impuesto']
-                        # if there are changes, update the record
-                        if vals:
-                            record_id.write(vals)
-                            products_updated.append([product['codigo']])
-                    # if there is no record, create it
+            # create categories if they don't exist
+            for category in order_categories:
+                _logger.info('Processing category %s with %s records' %
+                             (category, len(all_categories[category])))
+                records_data = all_categories[category]
+                object_name = 'cabys.categoria%s' % category
+                for category_data in records_data:
+                    record_data = records_data[category_data]
+                    record_id = self.env[object_name].search(
+                        [('codigo', '=', record_data['code'])])
                     if not record_id:
-                        record_id = self.env['cabys.producto'].create(product)
-                        products_new.append(product['codigo'])
-                # product codes in db and not in catalog file should be deleted
-                product_codes = list(all_products.keys())
-                record_ids = self.env['cabys.producto'].search(
-                    [('codigo', 'not in', product_codes)])
-                products_deleted = record_ids.mapped('codigo')
-                _logger.info('Finished updating Cabys catalog')
+                        vals = {
+                            'codigo': record_data['code'], 'name': record_data['description']}
+                        if 'subcategory' in record_data:
+                            subcategory_field = 'cabys_categoria%s_id' % (
+                                    int(category) - 1)
+                            vals[subcategory_field] = all_categories[str(
+                                (int(category) - 1))][record_data['subcategory']]['id']
+                        record_id = self.env[object_name].create(vals)
+                        categories_new.append(vals['codigo'])
+                    all_categories[category][category_data]['id'] = record_id.id
 
-            except Exception as e:
-                # Asegurarse de que el archivo temporal se elimine
-                if os.path.exists(temp_name):
-                    os.unlink(temp_name)
-                raise UserError(_("Error al procesar el archivo Excel: %s") % str(e))
+            # up to this point all categories should exist
+            # we now process the products
+            _logger.info('Processing %s products in catalog' %
+                         len(all_products))
+
+            for code in all_products:
+                # get record data
+                product = all_products[code]
+                product['cabys_categoria8_id'] = all_categories['8'][product['cabys_categoria8_id']]['id']
+                # search record
+                record_id = self.env['cabys.producto'].search(
+                    [('codigo', '=', code)])
+                # if it exist, check differences
+                if record_id:
+                    vals = {}
+                    if record_id.name != product['name']:
+                        vals['name'] = product['name']
+                    if record_id.cabys_categoria8_id.id != product['cabys_categoria8_id']:
+                        vals['cabys_categoria8_id'] = product['cabys_categoria8_id']
+                    if record_id.impuesto != product['impuesto']:
+                        vals['impuesto'] = product['impuesto']
+                    # if there are changes, update the record
+                    if vals:
+                        record_id.write(vals)
+                        products_updated.append([product['codigo']])
+                # if thereis no record, create it
+                if not record_id:
+                    record_id = self.env['cabys.producto'].create(product)
+                    products_new.append(product['codigo'])
+            # product codes in db and not in catalog file should be deleted
+            product_codes = list(all_products.keys())
+            record_ids = self.env['cabys.producto'].search(
+                [('codigo', 'not in', product_codes)])
+            products_deleted = record_ids.mapped('codigo')
+            _logger.info('Finished updating Cabys catalog')
 
             return products_new, products_updated, products_deleted, categories_new, categories_updated, categories_deleted
 
@@ -377,21 +465,16 @@ class CabysCatalogImportWizard(models.TransientModel):
                 # get file contents
                 excel_file = base64.b64decode(self.cabys_excel_file)
 
-                # Crear archivo temporal para procesar con pandas
-                with tempfile.NamedTemporaryFile(delete=False, suffix='.xlsx') as temp_file:
-                    temp_file.write(excel_file)
-                    temp_name = temp_file.name
+                # Usar nuestra función compatible con ambos formatos
+                workbook = self._read_excel_file(excel_file)
 
-                # Leer el archivo con pandas
-                df = pd.read_excel(temp_name, engine='openpyxl')
-
-                # Eliminar el archivo temporal
-                os.unlink(temp_name)
-
-                # Verificar encabezados en la segunda fila (índice 1)
+                # Get first sheet, that's where all the data should be
+                xl_sheet = workbook.sheet_by_index(0)
+                # second row has the headers of the file
+                # we will check the headers names to infer if this is a Cabys catalog file
                 for header in headers_map:
-                    cell_value = df.iloc[1, header['column']]
-                    if cell_value != header['header']:
+                    cell = xl_sheet.cell(1, header['column'])
+                    if cell.value != header['header']:
                         self.notes = 'El archivo seleccionado no parece ser un catálogo Cabys'
                         self.button_enable = False
                         return
@@ -426,30 +509,27 @@ class CabysCatalogImportWizard(models.TransientModel):
                 excel_file = base64.b64decode(self.cabys_excel_file)
                 _logger.info('Loading Cabys catalog from Excel file')
 
-                # Crear archivo temporal para procesar con pandas
-                with tempfile.NamedTemporaryFile(delete=False, suffix='.xlsx') as temp_file:
-                    temp_file.write(excel_file)
-                    temp_name = temp_file.name
+                # Usar nuestra función compatible con ambos formatos
+                workbook = self._read_excel_file(excel_file)
 
-                # Leer el archivo con pandas
-                df = pd.read_excel(temp_name, engine='openpyxl')
-
-                # Eliminar el archivo temporal
-                os.unlink(temp_name)
-
-                # Ignorar las dos primeras filas (encabezados)
-                df = df.iloc[2:]
-
+                _logger.info('workbook %s' % workbook)
+                # get first sheet, that's where the data is
+                xl_sheet = workbook.sheet_by_index(0)
+                _logger.info('Sheet %s name %s' % (xl_sheet, xl_sheet.name))
+                # get rows of data from workbook sheet
+                rows = xl_sheet.get_rows()
+                # skip first two header rows
+                rows.__next__()
+                rows.__next__()
                 # here we will process all the records (rows in catalog file)
                 products_codes = []
-
                 # iterate over every row
-                for _, row in df.iterrows():
+                for row in rows:
                     # get product data
-                    code = row.iloc[products_map['code']]
-                    cabys_categoria8_id = row.iloc[products_map['category']]
-                    name = row.iloc[products_map['description']]
-                    tax_data = row.iloc[products_map['tax']]
+                    code = row[products_map['code']].value
+                    cabys_categoria8_id = row[products_map['category']].value
+                    name = row[products_map['description']].value
+                    tax_data = row[products_map['tax']].value
                     tax_converted = 0.0
                     if isinstance(tax_data, str) and '%' in tax_data:
                         # Remueve el símbolo de porcentaje y luego divide por 100
@@ -483,9 +563,6 @@ class CabysCatalogImportWizard(models.TransientModel):
                 products_deleted = record_ids.mapped('codigo')
 
             except Exception as e:
-                # Asegurarse de que el archivo temporal se elimine
-                if os.path.exists(temp_name):
-                    os.unlink(temp_name)
                 raise UserError(_("Error al analizar el archivo Excel: %s") % str(e))
 
         return products_new, products_updated, products_deleted
