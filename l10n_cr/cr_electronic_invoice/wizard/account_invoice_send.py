@@ -43,6 +43,7 @@ _logger = logging.getLogger(__name__)
 
 class IrMailServer(models.Model):
     _inherit = "ir.mail_server"
+    _description = 'IR Mail Server'
 
     def send_email(self, message, **kwargs):
         # Guardamos la dirección del destinatario original

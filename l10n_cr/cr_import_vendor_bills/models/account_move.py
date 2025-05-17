@@ -2,6 +2,7 @@
 from odoo import models, fields, api, _
 
 class AccountInvoiceElectronic(models.Model):
+    _description = 'AccountInvoiceElectronic'
     _inherit = "account.move"
 
     iva_condition = fields.Selection([

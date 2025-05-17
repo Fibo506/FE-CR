@@ -374,6 +374,7 @@ _logger = logging.getLogger(__name__)
 
 class ResCurrencyRate(models.Model):
     _inherit = 'res.currency.rate'
+    _description = 'Currency Rate'
 
     rate = fields.Float(digits='Currency Rate Precision')
 

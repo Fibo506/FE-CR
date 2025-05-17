@@ -8,6 +8,7 @@ _logger = logging.getLogger(__name__)
 
 
 class ResPartner(models.Model):
+    _description = 'ResPartner'
     _inherit = 'res.partner'
 
     def limpiar_cedula(self, vat):

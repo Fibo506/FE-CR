@@ -3,6 +3,7 @@ from odoo.exceptions import UserError
 
 
 class IvaCodeType(models.Model):
+    _description = 'Invoice Line Electronic'
     _inherit = "account.tax"
 
     # ==============================================================================================

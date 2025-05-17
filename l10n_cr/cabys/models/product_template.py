@@ -10,6 +10,7 @@ _logger = logging.getLogger(__name__)
 
 class ProductTemplate(models.Model):
     _name = 'product.template'
+    _description = 'Product Template'
     _inherit = ['product.template', ]
 
     cabys_product_id = fields.Many2one("cabys.producto", "Producto en el catálogo Cabys")

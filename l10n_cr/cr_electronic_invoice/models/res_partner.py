@@ -12,6 +12,7 @@ _logger = logging.getLogger(__name__)
 
 
 class PartnerElectronic(models.Model):
+    _description = 'PartnerElectronic'
     _inherit = "res.partner"
 
     # ==============================================================================================

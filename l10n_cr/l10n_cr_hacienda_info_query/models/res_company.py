@@ -2,6 +2,7 @@ from odoo import models, fields
 
 
 class ResCompany(models.Model):
+    _description = 'ResCompany'
     _inherit = 'res.company'
 
     # === URL fields === #

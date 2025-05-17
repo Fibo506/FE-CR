@@ -21,6 +21,7 @@ _logger = logging.getLogger(__name__)
 
 
 class AccountInvoiceElectronic(models.Model):
+    _description = 'Account Invoice Electronic'
     _inherit = "account.move"
 
     # ==============================================================================================

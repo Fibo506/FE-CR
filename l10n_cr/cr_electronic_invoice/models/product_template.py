@@ -2,6 +2,7 @@ from odoo import models, fields, api
 
 
 class ProductElectronic(models.Model):
+    _description = 'Product Electronic'
     _inherit = "product.template"
 
     # ==============================================================================================

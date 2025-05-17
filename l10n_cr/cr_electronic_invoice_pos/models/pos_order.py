@@ -8,6 +8,7 @@ _logger = logging.getLogger(__name__)
 
 class PosOrder(models.Model):
     _name = "pos.order"
+    _description = 'PosOrder'
     _inherit = ["pos.order"]
 
     tipo_documento = fields.Selection(
