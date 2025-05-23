@@ -1202,6 +1202,7 @@ class AccountInvoiceElectronic(models.Model):
                     total_mercaderia_gravado = 0.0
                     total_mercaderia_exento = 0.0
                     total_mercaderia_exonerado = 0.0
+                    total_desgloce_impuesto = dict([])
                     total_descuento = 0.0
                     total_impuestos = 0.0
                     base_subtotal = 0.0
@@ -1347,6 +1348,14 @@ class AccountInvoiceElectronic(models.Model):
                                             'iva_tax_desc': taxes_lookup[i['id']]['iva_tax_desc'],
                                             'iva_tax_code': taxes_lookup[i['id']]['iva_tax_code'],
                                         }
+                                        # Se agrupan los impuestos segun el codigo para obtener el TotalDesgloceImpuesto
+                                        if tax['codigo'] in total_desgloce_impuesto:
+                                            if tax['iva_tax_code'] in total_desgloce_impuesto[tax['codigo']]:
+                                                total_desgloce_impuesto[tax['codigo']][tax['iva_tax_code']] += round(tax['monto'], 5)
+                                            else:
+                                                total_desgloce_impuesto[tax['codigo']][tax['iva_tax_code']] = round(tax['monto'], 5)
+                                        else:
+                                            total_desgloce_impuesto[tax['codigo']] = {tax['iva_tax_code']: round(tax['monto'], 5)}
                                         # Se genera la exoneración si existe para este impuesto
                                         if _tax_exoneration:
                                             exoneration_percentage = taxes_lookup[i['id']]['exoneration_percentage']
@@ -1365,7 +1374,13 @@ class AccountInvoiceElectronic(models.Model):
                                 line["impuesto"] = taxes
                                 line["impuestoNeto"] = round(_line_tax, 5)
 
-                            if inv_line.product_id.detailed_type == 'service':
+                            # FE versión 4.4 - Servicios Gravados
+                            #    Validación: En caso que en el campo “Código de bien o servicio”
+                            #    se utilicen códigos que empiecen con: 5,6,7,8,9 de la Categoría
+                            #    1 del CAByS y que este gravado con IVA, deberá de cumplir con
+                            #    el cálculo de este campo. Caso contrario rechazará el comprobante.
+                            
+                            if inv_line.product_id.detailed_type == 'service' or inv_line.product_id.cabys_product_id.cabys_categoria1_id.codigo in ['5','6','7','8','9']:                                
                                 if taxes:
                                     if _tax_exoneration:
                                         if _percentage_exoneration < 1:
@@ -1378,13 +1393,19 @@ class AccountInvoiceElectronic(models.Model):
                                     total_impuestos += _line_tax
                                 else:
                                     total_servicio_exento += base_line
-                            else:
+
+                            # FE versión 4.4 - Mercancias Gravadas
+                            #    Validación: En caso que en el campo “Código de bien o servicio”
+                            #    se utilicen códigos que empiecen con: 0,1,2,3,4 de la Categoría
+                            #    1 del CAByS y que este gravado con IVA, deberá de cumplir con
+                            #    el cálculo de este campo. Caso contrario se rechazará el comprobante.
+                            
+                            elif inv_line.product_id.cabys_product_id.cabys_categoria1_id.codigo in ['0','1','2','3','4']:
                                 if taxes:
                                     if _tax_exoneration:
                                         if _percentage_exoneration < 1:
                                             total_mercaderia_gravado += (base_line * (1 - _percentage_exoneration))
                                         total_mercaderia_exonerado += (base_line * _percentage_exoneration)
-
                                     else:
                                         total_mercaderia_gravado += base_line
 
@@ -1393,9 +1414,7 @@ class AccountInvoiceElectronic(models.Model):
                                     total_mercaderia_exento += base_line
 
                             base_subtotal += subtotal_line
-
                             line["montoTotalLinea"] = round(subtotal_line + _line_tax, 5)
-
                             lines[line_number] = line
 
                     if total_servicio_salon:
@@ -1457,7 +1476,7 @@ class AccountInvoiceElectronic(models.Model):
                         total_servicio_exento, total_servicio_exonerado,
                         total_mercaderia_gravado, total_mercaderia_exento,
                         total_mercaderia_exonerado, total_otros_cargos, total_iva_devuelto, base_subtotal,
-                        total_impuestos, total_descuento, lines,
+                        total_impuestos,total_desgloce_impuesto, total_descuento, lines,
                         otros_cargos, currency_rate, invoice_comments,
                         tipo_documento_referencia, numero_documento_referencia,
                         fecha_emision_referencia, codigo_referencia, razon_referencia)
@@ -1709,6 +1728,7 @@ class AccountInvoiceElectronic(models.Model):
 
             inv.name = inv.sequence
             inv.state_tributacion = False
+            self._send_invoices_to_hacienda()
 
     def _reverse_move_vals(self, default_values, cancel=True):
         move_vals = super()._reverse_move_vals(default_values, cancel)

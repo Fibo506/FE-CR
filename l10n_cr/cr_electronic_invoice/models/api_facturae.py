@@ -349,7 +349,7 @@ def gen_xml_v43(inv, sale_conditions, total_servicio_gravado,
                 total_servicio_exento, totalServExonerado,
                 total_mercaderia_gravado, total_mercaderia_exento,
                 totalMercExonerada, totalOtrosCargos, total_iva_devuelto, base_total,
-                total_impuestos, total_descuento, lines,
+                total_impuestos,total_desgloce_impuesto, total_descuento, lines,
                 otrosCargos, currency_rate, invoice_comments,
                 tipo_documento_referencia, numero_documento_referencia,
                 fecha_emision_referencia, codigo_referencia, razon_referencia):
@@ -527,17 +527,24 @@ def gen_xml_v43(inv, sale_conditions, total_servicio_gravado,
 
             sb.append('<SubTotal>' + str(v['subtotal']) + '</SubTotal>')
 
-            # TODO: ¿qué es base imponible? ¿porqué podría ser diferente del subtotal?
-            # if inv.tipo_documento != 'FEE':
-            #   sb.append('<BaseImponible>' + str(v['subtotal']) + '</BaseImponible>')
+            if inv.tipo_documento != 'FEE' or inv.tipo_documento != 'REP':
+                if v['impuesto'][1]['codigo']=='01' and v['subtotal'] > 0:
+                    sb.append('<BaseImponible>' + str(v['subtotal']) + '</BaseImponible>')
+                
+                # En caso que el impuesto sea: selectivo de consumo (02),
+                # entonces BaseImponible se obtiene de la suma entre el campo “Subtotal”, más el impuesto selectivo de consumo (02)
+                # o el impuesto al cemento (12)
+                elif v['impuesto'][1]['codigo']=='02' or v['impuesto'][1]['codigo']=='12':
+                    sum_baseImponible = v['subtotal'] + v['impuesto'][1]['monto']
+                    sb.append('<BaseImponible>' + str(sum_baseImponible) + '</BaseImponible>')
+
 
             if v.get('impuesto'):
                 for (a, b) in v['impuesto'].items():
-                    tax_code = str(b['iva_tax_code'])
                     sb.append('<Impuesto>')
                     sb.append('<Codigo>' + str(b['codigo']) + '</Codigo>')
-                    if tax_code.isdigit():
-                        sb.append('<CodigoTarifa>' + tax_code + '</CodigoTarifa>')
+                    if str(b['iva_tax_code']).isdigit():
+                        sb.append('<CodigoTarifaIVA>' + str(b['iva_tax_code']) + '</CodigoTarifaIVA>')
                     sb.append('<Tarifa>' + str(b['tarifa']) + '</Tarifa>')
                     sb.append('<Monto>' + str(b['monto']) + '</Monto>')
 
@@ -567,6 +574,7 @@ def gen_xml_v43(inv, sale_conditions, total_servicio_gravado,
                             sb.append('</Exoneracion>')
                     sb.append('</Impuesto>')
 
+                sb.append('<ImpuestoAsumidoEmisorFabrica>' + str(0) + '</ImpuestoAsumidoEmisorFabrica>')
                 sb.append('<ImpuestoNeto>' + str(v['impuestoNeto']) + '</ImpuestoNeto>')
 
             sb.append('<MontoTotalLinea>' + str(v['montoTotalLinea']) + '</MontoTotalLinea>')
@@ -628,16 +636,32 @@ def gen_xml_v43(inv, sale_conditions, total_servicio_gravado,
               '</TotalVenta>')
     sb.append('<TotalDescuentos>' + str(round(total_descuento, 5)) + '</TotalDescuentos>')
     sb.append('<TotalVentaNeta>' + str(round(base_total, 5)) + '</TotalVentaNeta>')
+
+    sb.append('<TotalDesgloseImpuesto>') 
+    for tax_code in total_desgloce_impuesto:
+        for iva_tax in total_desgloce_impuesto[tax_code]:
+            sb.append('<Codigo>' + str(tax_code) + '</Codigo>')
+            sb.append('<CodigoTarifaIVA>' + str(iva_tax) + '</CodigoTarifaIVA>')
+            sb.append('<TotalMontoImpuesto>' + str(round(total_desgloce_impuesto[tax_code][iva_tax], 5)) + '</TotalMontoImpuesto>')
+    sb.append('</TotalDesgloseImpuesto>')
     sb.append('<TotalImpuesto>' + str(round(total_impuestos, 5)) + '</TotalImpuesto>')
 
     if total_iva_devuelto:
         sb.append('<TotalIVADevuelto>' + str(round(total_iva_devuelto, 5)) + '</TotalIVADevuelto>')
 
     sb.append('<TotalOtrosCargos>' + str(totalOtrosCargos) + '</TotalOtrosCargos>')
+    sb.append('<MedioPago>')
+
 
     payment_method_length = len(payment_methods_id)
+    total_payment_method = round(base_total + total_impuestos + totalOtrosCargos - total_iva_devuelto, 5)
     for payment_method_counter in range(min(payment_method_length, 4)):
-        sb.append('<MedioPago>' + payment_methods_id[payment_method_counter] + '</MedioPago>')
+        sb.append('<TipoMedioPago>' + payment_methods_id[payment_method_counter] + '</TipoMedioPago>')
+        sb.append('<TotalMedioPago>' + str(total_payment_method)+ '</TotalMedioPago>')
+    
+     
+    
+    sb.append('</MedioPago>')
 
     sb.append('<TotalComprobante>' +
               str(round(base_total + total_impuestos + totalOtrosCargos - total_iva_devuelto, 5)) +
