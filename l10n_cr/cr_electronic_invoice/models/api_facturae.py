@@ -394,8 +394,9 @@ def gen_xml_v43(inv, sale_conditions, total_servicio_gravado,
               (inv.company_id.invoice_provider_identification
                if inv.company_id.invoice_provider_type == 'external'
                else inv.company_id.vat) + '</ProveedorSistemas>')
-    sb.append('<CodigoActividadEmisor>' + str(inv.economic_activity_id.code) + '</CodigoActividadEmisor>')
-    sb.append('<CodigoActividadReceptor>' + str(inv.partner_id.activity_id.code) + '</CodigoActividadReceptor>')
+    sb.append('<CodigoActividadEmisor>' + str(inv.company_id.activity_id.code) + '</CodigoActividadEmisor>')
+    if inv.tipo_documento in ["FE","FEC","NC","ND"]:
+        sb.append('<CodigoActividadReceptor>' + str(inv.partner_id.activity_id.code) + '</CodigoActividadReceptor>')
     sb.append('<NumeroConsecutivo>' + inv.number_electronic[21:41] + '</NumeroConsecutivo>')
     sb.append('<FechaEmision>' + inv.date_issuance + '</FechaEmision>')
     sb.append('<Emisor>')
@@ -682,11 +683,7 @@ def gen_xml_v43(inv, sale_conditions, total_servicio_gravado,
         if invoice_comments:
             sb.append('<OtroTexto>' + str(invoice_comments) + '</OtroTexto>')
         if invoice_ref:
-            sb.append('<OtroContenido>')
-            sb.append('<InformacionAdicional xmlns="https://FE-CR/DataInfo.xsd">')
-            sb.append('<OrdenCompra>' + str(invoice_ref) + '</OrdenCompra>')
-            sb.append('</InformacionAdicional>')
-            sb.append('</OtroContenido>')
+            sb.append('<OtroContenido>'+ str(invoice_ref) + '</OtroContenido>')
         sb.append('</Otros>')
 
     sb.append('</' + fe_enums.tagName[inv.tipo_documento] + '>')
