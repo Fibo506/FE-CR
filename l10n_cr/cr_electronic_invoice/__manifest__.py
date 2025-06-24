@@ -61,6 +61,7 @@
         'views/account_move_reversal_views.xml',
         'views/report_invoice.xml',
         'views/account_portal_templates.xml',
+        'views/web_external_layout_striped.xml',
         'security/ir.model.access.csv',
         # 'data/account_tax_template_data.xml',
     ],
