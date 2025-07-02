@@ -374,8 +374,20 @@ class CabysCatalogImportWizard(models.TransientModel):
 
         if self.cabys_excel_file:
             try:
-                # Saltarse la validación de encabezados y proceder directamente con el análisis
-                # Esta es la solución más simple para solucionar el problema de validación
+                # Validar encabezados antes de proceder con el análisis
+                expected_headers = ['Código', 'Descripción', 'Categoría']  # Ejemplo de encabezados esperados
+                file_data = base64.b64decode(self.cabys_excel_file)
+                with tempfile.NamedTemporaryFile(delete=False) as temp_file:
+                    temp_file.write(file_data)
+                    temp_file_path = temp_file.name
+
+                df = pd.read_excel(temp_file_path, header=0)
+                actual_headers = list(df.columns)
+
+                if not all(header in actual_headers for header in expected_headers):
+                    raise UserError(
+                        _('El archivo Excel no tiene el formato esperado. Encabezados esperados: %s') % ', '.join(expected_headers)
+                    )
                 products_new, products_updated, products_deleted = self._analyze_excel_file()
 
                 msg = 'Actualizar el catálogo comprende los siguientes cambios:\n'
