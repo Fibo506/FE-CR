@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import requests
 import datetime
 import json
@@ -21,7 +22,7 @@ from odoo.exceptions import UserError
 from xml.sax.saxutils import escape
 from ..xades.context2 import XAdESContext2, PolicyId2, create_xades_epes_signature
 from lxml import etree
-
+from html import escape  # escapes &, <, > … for XML safety
 
 
 # PARA VALIDAR JSON DE RESPUESTA
@@ -411,8 +412,13 @@ def gen_xml_v43(inv, sale_conditions, total_servicio_gravado,
     sb.append('<Canton>' + str(issuing_company.county_id.code) + '</Canton>')
     sb.append('<Distrito>' + str(issuing_company.district_id.code) + '</Distrito>')
 
+    # --- Issuer ---
     if issuing_company.neighborhood_id and issuing_company.neighborhood_id.code:
-        sb.append('<Barrio>' + str(issuing_company.neighborhood_id.name or '') + '</Barrio>')
+        neighborhood_value = normalize_neighborhood(
+            issuing_company.neighborhood_id.name
+        )
+        if neighborhood_value:
+            sb.append(f"<Barrio>{neighborhood_value}</Barrio>")
 
     sb.append('<OtrasSenas>' + escape(str(issuing_company.street or 'No disponible')) + '</OtrasSenas>')
     sb.append('</Ubicacion>')
@@ -466,8 +472,11 @@ def gen_xml_v43(inv, sale_conditions, total_servicio_gravado,
                     sb.append('<Distrito>' + str(receiver_company.district_id.code or '') + '</Distrito>')
 
                     if receiver_company.neighborhood_id and receiver_company.neighborhood_id.code:
-                        sb.append('<Barrio>' + str(receiver_company.neighborhood_id.name or '') + '</Barrio>')
-
+                        neighborhood_value = normalize_neighborhood(
+                            receiver_company.neighborhood_id.name
+                        )
+                        if neighborhood_value:
+                            sb.append(f"<Barrio>{neighborhood_value}</Barrio>")
                     sb.append('<OtrasSenas>' + escape(str(receiver_company.street or 'No disponible')) + '</OtrasSenas>')
                     sb.append('</Ubicacion>')
 
@@ -1366,3 +1375,27 @@ def p12_expiration_date(p12file, password):
         return cert.not_valid_after
     except Exception as e:
         raise
+def normalize_neighborhood(name: str) -> str:
+    """
+    Ensures the <Barrio> value meets Hacienda's minLength=5 rule.
+
+    - Empty input  → returns "" (caller should skip the tag).
+    - Length ≤ 4   → prepends 'Barrio ' to reach ≥ 5 characters.
+    - Always XML-escapes the result.
+
+    Parameters
+    ----------
+    name : str
+        The raw neighborhood name from the database.
+
+    Returns
+    -------
+    str
+        A normalized, XML-safe string (or empty if name is falsy).
+    """
+    if not name:
+        return ""
+    name = name.strip()
+    if len(name) < 5:  # 1-4 chars trigger prefix
+        name = f"Barrio {name}"
+    return escape(name)
