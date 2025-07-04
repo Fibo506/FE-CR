@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import base64
 import datetime
 import pytz
@@ -1185,6 +1186,9 @@ class AccountInvoiceElectronic(models.Model):
                     # Validate if invoice currency is the same as the company currency
                     if currency.name == self.company_id.currency_id.name:
                         currency_rate = 1
+                    elif inv.tipo_documento == "NC" and currency.name != self.company_id.currency_id.name:
+                        Original_Currency = (inv.invoice_id.amount_total_signed / inv.invoice_id.amount_total_in_currency_signed)
+                        currency_rate = round(Original_Currency , 5)
                     else:
                         currency_rate = round(1.0 / currency.rate, 5)
 
@@ -1800,6 +1804,10 @@ class AccountInvoiceElectronic(models.Model):
                 cliente = self.env['res.partner'].create(info)
                 cliente.onchange_vat()
                 self.partner_id = cliente.id
+
+
+
+
 
     # ------------------------------------------------------------
     # MAIL.THREAD
