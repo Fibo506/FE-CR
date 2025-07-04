@@ -1,9 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <template id="report_invoice_document" inherit_id="account.report_invoice_document">
-        <xpath expr="//div[hasclass('mt-5')]" position="attributes">
-            <attribute name="class">mt-2</attribute>
-        </xpath>
         <xpath expr="//div[@id='informations']" position="replace">
             <div id="electronic_data_number_electronic" class="row m-0">
                 <div class="col-8" t-if="o.number_electronic" name="number_electronic">

@@ -24,11 +24,11 @@
         <field name="name">sale.conditions.tree</field>
         <field name="model">sale.conditions</field>
         <field name="arch" type="xml">
-            <tree string="Sale terms" editable="bottom">
+            <list string="Sale terms" editable="bottom">
                 <field name="sequence"/>
                 <field name="name"/>
                 <field name="active"/>
-            </tree>
+            </list>
         </field>
     </record>
 
