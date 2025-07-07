@@ -21,6 +21,7 @@ _logger = logging.getLogger(__name__)
 
 
 class AccountInvoiceElectronic(models.Model):
+    _description = 'Account Invoice Electronic'
     _inherit = "account.move"
 
     # ==============================================================================================
@@ -1365,7 +1366,7 @@ class AccountInvoiceElectronic(models.Model):
                                 line["impuesto"] = taxes
                                 line["impuestoNeto"] = round(_line_tax, 5)
 
-                            if inv_line.product_id.detailed_type == 'service':
+                            if inv_line.product_id.type == 'service':
                                 if taxes:
                                     if _tax_exoneration:
                                         if _percentage_exoneration < 1:

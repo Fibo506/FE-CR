@@ -2,6 +2,7 @@ from odoo import models, fields, api
 
 
 class ProductCategory(models.Model):
+    _description = 'Product Category'
     _inherit = "product.category"
 
     # ==============================================================================================

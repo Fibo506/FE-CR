@@ -17,6 +17,7 @@ from odoo.tests.common import Form
 _logger = logging.getLogger(__name__)
 
 class FetchmailServer(models.Model):
+    _description = 'FetchmailServer'
     _inherit = 'fetchmail.server'
 
     def fetch_mail(self):

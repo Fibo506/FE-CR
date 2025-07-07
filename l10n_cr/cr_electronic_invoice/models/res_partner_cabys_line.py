@@ -3,6 +3,7 @@ from odoo import models, fields
 
 class AutEx(models.Model):
     _name = "res.partner.cabys.line"
+    _description = 'AutEx'
     _description = "Allowed CABYS"
 
     # ==============================================================================================

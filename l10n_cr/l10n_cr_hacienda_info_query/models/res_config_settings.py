@@ -2,6 +2,7 @@ from odoo import fields, models
 
 
 class ResConfigSettings(models.TransientModel):
+    _description = 'ResConfigSettings'
     _inherit = 'res.config.settings'
 
     # === URL fields === #

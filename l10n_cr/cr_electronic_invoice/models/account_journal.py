@@ -7,6 +7,7 @@ import re
 
 class AccountJournalInherit(models.Model):
     _name = 'account.journal'
+    _description = 'Account Journal Inherit'
     _inherit = 'account.journal'
 
     # ==============================================================================================

@@ -5,6 +5,7 @@ from odoo import api, fields, models
 
 
 class ResConfigSettings(models.TransientModel):
+    _description = 'ResConfigSettings'
     _inherit = 'res.config.settings'
 
     expense_product_id = fields.Many2one(
