@@ -1386,7 +1386,7 @@ class AccountInvoiceElectronic(models.Model):
                             #    1 del CAByS y que este gravado con IVA, deberá de cumplir con
                             #    el cálculo de este campo. Caso contrario rechazará el comprobante.
                             
-                            if inv_line.product_id.type == 'service': or inv_line.product_id.cabys_product_id.cabys_categoria1_id.codigo in ['5','6','7','8','9']:                                
+                            if inv_line.product_id.type == 'service' or inv_line.product_id.cabys_product_id.cabys_categoria1_id.codigo in ['5','6','7','8','9']:                                
                                 if taxes:
                                     if _tax_exoneration:
                                         if _percentage_exoneration < 1:
