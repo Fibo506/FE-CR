@@ -33,5 +33,11 @@
             'cabys/static/src/xml/cabys_templates.xml',
         ]
     },
+    'external_dependencies': {
+        "python": [
+            'pandas',
+            'openpyxl',
+        ],
+    },
     'installable': True,
 }

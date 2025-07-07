@@ -1,6 +1,6 @@
 name: Bug
 description: Reportar un error 
-title: '[17.0] module: description'
+title: '[17.0] cr_electronic_invoice: description'
 body:
   - type: markdown
     attributes:
