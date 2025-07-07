@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <template id="report_invoice_document" inherit_id="account.report_invoice_document">
+
         <!-- Corrección del primer XPath que busca el div con clase mt-5 -->
         <!-- En Odoo 18, esta sección ahora tiene una estructura diferente -->
         <xpath expr="//div[contains(@class, 'page')]/div[1]" position="attributes">
             <attribute name="class" add="mt-2" separator=" " remove="mt-5"/>
         </xpath>
+
 
         <xpath expr="//div[@id='informations']" position="replace">
             <div id="electronic_data_number_electronic" class="row m-0">
