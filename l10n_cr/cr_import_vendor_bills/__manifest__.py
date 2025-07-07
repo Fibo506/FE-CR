@@ -2,7 +2,7 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 {
     'name': 'Importador de Facturas de Proveedores',
-    'version': '17.0.0.0.0',
+    'version': '18.0.0.0.0',
     'category': 'Vendor Bills',
     'author': 'Singulary',
     'license': 'AGPL-3',
@@ -22,6 +22,8 @@
         'views/res_company_views.xml',
         'views/account_move.xml'
         # 'wizard/cr_multiple_invoice_validation_wz_view.xml',
-    ]
-    ,
+    ],
+    'installable': True,
+
+
 }

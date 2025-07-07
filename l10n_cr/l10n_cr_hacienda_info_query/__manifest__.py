@@ -1,6 +1,6 @@
 {
     "name": "Consultar Información de Clientes en Hacienda Costa Rica",
-    'version': '17.0.0.0.1',
+    'version': '18.0.0.0.1',
     'author': 'Singulary',
     'license': 'AGPL-3',
     'website': 'https://singulary.online',

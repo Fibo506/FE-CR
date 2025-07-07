@@ -22,6 +22,7 @@ _logger = logging.getLogger(__name__)
 
 
 class AccountInvoiceElectronic(models.Model):
+    _description = 'Account Invoice Electronic'
     _inherit = "account.move"
 
     # ==============================================================================================
@@ -1378,13 +1379,14 @@ class AccountInvoiceElectronic(models.Model):
                                 line["impuesto"] = taxes
                                 line["impuestoNeto"] = round(_line_tax, 5)
 
+
                             # FE versión 4.4 - Servicios Gravados
                             #    Validación: En caso que en el campo “Código de bien o servicio”
                             #    se utilicen códigos que empiecen con: 5,6,7,8,9 de la Categoría
                             #    1 del CAByS y que este gravado con IVA, deberá de cumplir con
                             #    el cálculo de este campo. Caso contrario rechazará el comprobante.
                             
-                            if inv_line.product_id.detailed_type == 'service' or inv_line.product_id.cabys_product_id.cabys_categoria1_id.codigo in ['5','6','7','8','9']:                                
+                            if inv_line.product_id.type == 'service': or inv_line.product_id.cabys_product_id.cabys_categoria1_id.codigo in ['5','6','7','8','9']:                                
                                 if taxes:
                                     if _tax_exoneration:
                                         if _percentage_exoneration < 1:

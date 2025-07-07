@@ -5,6 +5,7 @@ from odoo import models, fields, api
 
 class CompanyElectronic(models.Model):
     _name = 'res.company'
+    _description = 'CompanyElectronic'
     _inherit = ['res.company', 'mail.thread', ]
 
 

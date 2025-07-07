@@ -3,6 +3,7 @@ from odoo import models, fields, api, _
 
 
 class AccountTaxTemplate(models.Model):
+    _description = 'Account Tax Template'
     _inherit = "account.tax"
 
     # ==============================================================================================

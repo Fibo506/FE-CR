@@ -1,12 +1,12 @@
 <odoo>
-    <record id="view_pharmaceutical_form_tree" model="ir.ui.view">
-        <field name="name">pharmaceutical.form.tree</field>
+    <record id="view_pharmaceutical_form_list" model="ir.ui.view">
+        <field name="name">pharmaceutical.form.list</field>
         <field name="model">pharmaceutical.form</field>
         <field name="arch" type="xml">
-            <tree>
+            <list>
                 <field name="code"/>
                 <field name="name"/>
-            </tree>
+            </list>
         </field>
     </record>
 
@@ -28,7 +28,7 @@
     <record id="action_pharmaceutical_form" model="ir.actions.act_window">
         <field name="name">Formas Farmacéuticas</field>
         <field name="res_model">pharmaceutical.form</field>
-        <field name="view_mode">tree,form</field>
+        <field name="view_mode">list,form</field>
     </record>
 
     <menuitem id="menu_pharmaceutical_form" name="Formas Farmacéuticas" sequence="10"/>
