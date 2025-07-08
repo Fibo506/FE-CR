@@ -396,7 +396,7 @@ def gen_xml_v43(inv, sale_conditions, total_servicio_gravado,
                if inv.company_id.invoice_provider_type == 'external'
                else inv.company_id.vat) + '</ProveedorSistemas>')
     sb.append('<CodigoActividadEmisor>' + str(inv.company_id.activity_id.code) + '</CodigoActividadEmisor>')
-    if inv.tipo_documento in ["FE","FEC","NC","ND"]:
+    if inv.tipo_documento in ["FE","FEC","NC","ND"] and inv.partner_id.activity_id.code:
         sb.append('<CodigoActividadReceptor>' + str(inv.partner_id.activity_id.code) + '</CodigoActividadReceptor>')
     sb.append('<NumeroConsecutivo>' + inv.number_electronic[21:41] + '</NumeroConsecutivo>')
     sb.append('<FechaEmision>' + inv.date_issuance + '</FechaEmision>')
@@ -433,7 +433,7 @@ def gen_xml_v43(inv, sale_conditions, total_servicio_gravado,
     sb.append('<CorreoElectronico>' + str(issuing_company.email) + '</CorreoElectronico>')
     sb.append('</Emisor>')
 
-    if inv.tipo_documento == 'TE' or (inv.tipo_documento == 'NC' and not receiver_company.vat):
+    if inv.tipo_documento == 'TE' or (inv.tipo_documento == 'NC' and inv.reference_document_id.code == '04'):
         pass
     else:
         vat = re.sub('[^0-9]', '', receiver_company.vat)
@@ -531,7 +531,9 @@ def gen_xml_v43(inv, sale_conditions, total_servicio_gravado,
             if v.get('montoDescuento'):
                 sb.append('<Descuento>')
                 sb.append('<MontoDescuento>' + str(v['montoDescuento']) + '</MontoDescuento>')
+                sb.append('<CodigoDescuento>' + str(v['codigoDescuento']) + '</CodigoDescuento>')
                 if v.get('naturalezaDescuento'):
+                    sb.append('<CodigoDescuentoOTRO>' + str(v['codigoDescuentoOTRO']) + '</CodigoDescuentoOTRO>')
                     sb.append('<NaturalezaDescuento>' + str(v['naturalezaDescuento']) + '</NaturalezaDescuento>')
                 sb.append('</Descuento>')
 

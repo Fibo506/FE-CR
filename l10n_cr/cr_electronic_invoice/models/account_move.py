@@ -1304,7 +1304,13 @@ class AccountInvoiceElectronic(models.Model):
                             if inv_line.discount and price_unit > 0:
                                 total_descuento += descuento
                                 line["montoDescuento"] = descuento
-                                line["naturalezaDescuento"] = inv_line.discount_note or 'Descuento Comercial'
+                                if inv_line.discount_code_id:
+                                    line["codigoDescuento"] = inv_line.discount_code_id.code
+                                    if inv_line.discount_code_id.code == '99':
+                                        line["codigoDescuentoOTRO"] = inv_line.discount_note
+                                        line["naturalezaDescuento"] = inv_line.discount_code_id.display_name
+                                else:
+                                    raise UserError(_('The discount code is required when apply a discount.'))
 
                             # Se generan los impuestos
                             taxes = dict([])
