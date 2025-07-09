@@ -452,15 +452,11 @@ def gen_xml_v43(inv, sale_conditions, total_servicio_gravado,
         if receiver_company.name:
             sb.append('<Receptor>')
             sb.append('<Nombre>' + escape(str(receiver_company.name[:99])) + '</Nombre>')
-
-            if inv.tipo_documento == 'FEE' or id_code == '05':
-                if receiver_company.vat:
-                    sb.append('<IdentificacionExtranjero>' + str(receiver_company.vat) + '</IdentificacionExtranjero>')
-            else:
-                sb.append('<Identificacion>')
-                sb.append('<Tipo>' + str(id_code) + '</Tipo>')
-                sb.append('<Numero>' + str(vat) + '</Numero>')
-                sb.append('</Identificacion>')
+            sb.append('<Identificacion>')
+            sb.append('<Tipo>' + str(id_code) + '</Tipo>')
+            sb.append('<Numero>' + str(vat) + '</Numero>')
+            sb.append('</Identificacion>')
+                
 
             if inv.tipo_documento != 'FEE':
                 if receiver_company.state_id and \
@@ -480,15 +476,15 @@ def gen_xml_v43(inv, sale_conditions, total_servicio_gravado,
                     sb.append('<OtrasSenas>' + escape(str(receiver_company.street or 'No disponible')) + '</OtrasSenas>')
                     sb.append('</Ubicacion>')
 
-                if receiver_company.phone:
-                    try:
-                        phone = phonenumbers.parse(receiver_company.phone, (receiver_company.country_id.code or 'CR'))
-                        sb.append('<Telefono>')
-                        sb.append('<CodigoPais>' + str(phone.country_code) + '</CodigoPais>')
-                        sb.append('<NumTelefono>' + str(phone.national_number) + '</NumTelefono>')
-                        sb.append('</Telefono>')
-                    except:
-                        pass
+            if receiver_company.phone:
+                try:
+                    phone = phonenumbers.parse(receiver_company.phone, (receiver_company.country_id.code or 'CR'))
+                    sb.append('<Telefono>')
+                    sb.append('<CodigoPais>' + str(phone.country_code) + '</CodigoPais>')
+                    sb.append('<NumTelefono>' + str(phone.national_number) + '</NumTelefono>')
+                    sb.append('</Telefono>')
+                except:
+                    pass
 
                 re_match = r'^(\s?[^\s,]+@[^\s,]+\.[^\s,]+\s?,)*(\s?[^\s,]+@[^\s,]+\.[^\s,]+)$'
                 match = receiver_company.email and re.match(re_match, receiver_company.email.lower())
@@ -539,7 +535,7 @@ def gen_xml_v43(inv, sale_conditions, total_servicio_gravado,
 
             sb.append('<SubTotal>' + str(v['subtotal']) + '</SubTotal>')
 
-            if inv.tipo_documento != 'FEE' or inv.tipo_documento != 'REP':
+            if inv.tipo_documento not in ['FEE', 'REP']:
                 if v['impuesto'][1]['codigo']=='01' and v['subtotal'] > 0:
                     sb.append('<BaseImponible>' + str(v['subtotal']) + '</BaseImponible>')
                 
@@ -586,8 +582,10 @@ def gen_xml_v43(inv, sale_conditions, total_servicio_gravado,
                             sb.append('</Exoneracion>')
                     sb.append('</Impuesto>')
 
-                sb.append('<ImpuestoAsumidoEmisorFabrica>' + str(0) + '</ImpuestoAsumidoEmisorFabrica>')
-                sb.append('<ImpuestoNeto>' + str(v['impuestoNeto']) + '</ImpuestoNeto>')
+                if inv.tipo_documento not in ['FEE','FEC','REP']:
+                    sb.append('<ImpuestoAsumidoEmisorFabrica>' + str(0) + '</ImpuestoAsumidoEmisorFabrica>')
+                if inv.tipo_documento != 'FEE':
+                    sb.append('<ImpuestoNeto>' + str(v['impuestoNeto']) + '</ImpuestoNeto>')
 
             sb.append('<MontoTotalLinea>' + str(v['montoTotalLinea']) + '</MontoTotalLinea>')
             sb.append('</LineaDetalle>')
