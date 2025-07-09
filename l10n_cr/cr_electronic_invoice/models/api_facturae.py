@@ -584,7 +584,7 @@ def gen_xml_v43(inv, sale_conditions, total_servicio_gravado,
 
                 if inv.tipo_documento not in ['FEE','FEC','REP']:
                     sb.append('<ImpuestoAsumidoEmisorFabrica>' + str(0) + '</ImpuestoAsumidoEmisorFabrica>')
-                elif inv.tipo_documento != 'FEE':
+                if inv.tipo_documento != 'FEE':
                     sb.append('<ImpuestoNeto>' + str(v['impuestoNeto']) + '</ImpuestoNeto>')
 
             sb.append('<MontoTotalLinea>' + str(v['montoTotalLinea']) + '</MontoTotalLinea>')
