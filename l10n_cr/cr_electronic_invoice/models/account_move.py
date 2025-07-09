@@ -1298,7 +1298,10 @@ class AccountInvoiceElectronic(models.Model):
                                 _no_cabys_code = _(f'Warning!.\nLine without CABYS code: {inv_line.name}')
                                 continue
 
-                            if inv.tipo_documento == 'FEE' and inv_line.tariff_head:
+                            # Validación: Deberá incluir al menos 12 dígitos cuando se
+                            # trate de una FEE, NC o ND que modifiquen una FEE y que el
+                            # primer digito del código CABYS sea 0, 1, 2, 3 y 4 (bienes).
+                            if inv.tipo_documento == 'FEE' and inv_line.tariff_head and inv_line.product_id.cabys_product_id.cabys_categoria1_id.codigo in ['0','1','2','3','4']:
                                 line["partidaArancelaria"] = inv_line.tariff_head
 
                             if inv_line.discount and price_unit > 0:
