@@ -791,6 +791,15 @@ msgid "Economic activity"
 msgstr "Actividad Económica"
 
 #. module: cr_electronic_invoice
+#: model:ir.actions.act_window,name:cr_electronic_invoice.action_discount_code
+#: model:ir.model.fields,field_description:cr_electronic_invoice.field_account_move_line__discount_code_id
+#: model:ir.ui.menu,name:cr_electronic_invoice.menu_economic_activity
+#: model_terms:ir.ui.view,arch_db:cr_electronic_invoice.view_discount_code_form
+#: model_terms:ir.ui.view,arch_db:cr_electronic_invoice.view_discount_code_tree
+msgid "Discount Code"
+msgstr "Código Descuento"
+
+#. module: cr_electronic_invoice
 #: model:ir.model.fields,help:cr_electronic_invoice.field_product_category__economic_activity_id
 #: model:ir.model.fields,help:cr_electronic_invoice.field_product_product__economic_activity_id
 #: model:ir.model.fields,help:cr_electronic_invoice.field_product_template__economic_activity_id
