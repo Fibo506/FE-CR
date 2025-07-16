@@ -50,9 +50,18 @@
             </div>
             <br/>
         </xpath>
+        <xpath expr="//t[@t-call='account.document_tax_totals']" position="before">
+            <t t-if="o.amount_discount_electronic_invoice"> <tr class="o_total_row o_subtotal">
+                    <td name="td_amount_discount_electronic_invoice_label">Discount Amount</td>
+                    <td class="text-end" name="td_amount_discount_electronic_invoice">
+                        <span t-field="o.amount_discount_electronic_invoice" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
+                    </td>
+                </tr>
+            </t>
+        </xpath>
         <xpath expr="//div[@id='qrcode']" position="after">
             <p>
-                <span>Autorizada mediante resolución N° DGT-R-033-2019 del 20 de junio de 2019.</span>
+                <span>Autorizada mediante resolución N° MH-DGT-RES-0027-2024 del 13 de noviembre de 2024. <br/>Versión 4.4</span>
             </p>
 
             <div style="width:700px; height:110px;">
