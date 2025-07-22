@@ -396,7 +396,7 @@ def gen_xml_v43(inv, sale_conditions, total_servicio_gravado,
                if inv.company_id.invoice_provider_type == 'external'
                else inv.company_id.vat) + '</ProveedorSistemas>')
     sb.append('<CodigoActividadEmisor>' + str(inv.company_id.activity_id.code) + '</CodigoActividadEmisor>')
-    if inv.tipo_documento in ["FE","FEC","NC","ND"]:
+    if inv.tipo_documento in ["FE","FEC","NC","ND"] and inv.partner_id.activity_id.code:
         sb.append('<CodigoActividadReceptor>' + str(inv.partner_id.activity_id.code) + '</CodigoActividadReceptor>')
     sb.append('<NumeroConsecutivo>' + inv.number_electronic[21:41] + '</NumeroConsecutivo>')
     sb.append('<FechaEmision>' + inv.date_issuance + '</FechaEmision>')
@@ -433,7 +433,7 @@ def gen_xml_v43(inv, sale_conditions, total_servicio_gravado,
     sb.append('<CorreoElectronico>' + str(issuing_company.email) + '</CorreoElectronico>')
     sb.append('</Emisor>')
 
-    if inv.tipo_documento == 'TE' or (inv.tipo_documento == 'NC' and not receiver_company.vat):
+    if inv.tipo_documento == 'TE' or (inv.tipo_documento == 'NC' and inv.reference_document_id.code == '04'):
         pass
     else:
         vat = re.sub('[^0-9]', '', receiver_company.vat)
@@ -452,15 +452,11 @@ def gen_xml_v43(inv, sale_conditions, total_servicio_gravado,
         if receiver_company.name:
             sb.append('<Receptor>')
             sb.append('<Nombre>' + escape(str(receiver_company.name[:99])) + '</Nombre>')
-
-            if inv.tipo_documento == 'FEE' or id_code == '05':
-                if receiver_company.vat:
-                    sb.append('<IdentificacionExtranjero>' + str(receiver_company.vat) + '</IdentificacionExtranjero>')
-            else:
-                sb.append('<Identificacion>')
-                sb.append('<Tipo>' + str(id_code) + '</Tipo>')
-                sb.append('<Numero>' + str(vat) + '</Numero>')
-                sb.append('</Identificacion>')
+            sb.append('<Identificacion>')
+            sb.append('<Tipo>' + str(id_code) + '</Tipo>')
+            sb.append('<Numero>' + str(vat) + '</Numero>')
+            sb.append('</Identificacion>')
+                
 
             if inv.tipo_documento != 'FEE':
                 if receiver_company.state_id and \
@@ -480,15 +476,15 @@ def gen_xml_v43(inv, sale_conditions, total_servicio_gravado,
                     sb.append('<OtrasSenas>' + escape(str(receiver_company.street or 'No disponible')) + '</OtrasSenas>')
                     sb.append('</Ubicacion>')
 
-                if receiver_company.phone:
-                    try:
-                        phone = phonenumbers.parse(receiver_company.phone, (receiver_company.country_id.code or 'CR'))
-                        sb.append('<Telefono>')
-                        sb.append('<CodigoPais>' + str(phone.country_code) + '</CodigoPais>')
-                        sb.append('<NumTelefono>' + str(phone.national_number) + '</NumTelefono>')
-                        sb.append('</Telefono>')
-                    except:
-                        pass
+            if receiver_company.phone:
+                try:
+                    phone = phonenumbers.parse(receiver_company.phone, (receiver_company.country_id.code or 'CR'))
+                    sb.append('<Telefono>')
+                    sb.append('<CodigoPais>' + str(phone.country_code) + '</CodigoPais>')
+                    sb.append('<NumTelefono>' + str(phone.national_number) + '</NumTelefono>')
+                    sb.append('</Telefono>')
+                except:
+                    pass
 
                 re_match = r'^(\s?[^\s,]+@[^\s,]+\.[^\s,]+\s?,)*(\s?[^\s,]+@[^\s,]+\.[^\s,]+)$'
                 match = receiver_company.email and re.match(re_match, receiver_company.email.lower())
@@ -531,13 +527,15 @@ def gen_xml_v43(inv, sale_conditions, total_servicio_gravado,
             if v.get('montoDescuento'):
                 sb.append('<Descuento>')
                 sb.append('<MontoDescuento>' + str(v['montoDescuento']) + '</MontoDescuento>')
+                sb.append('<CodigoDescuento>' + str(v['codigoDescuento']) + '</CodigoDescuento>')
                 if v.get('naturalezaDescuento'):
+                    sb.append('<CodigoDescuentoOTRO>' + str(v['codigoDescuentoOTRO']) + '</CodigoDescuentoOTRO>')
                     sb.append('<NaturalezaDescuento>' + str(v['naturalezaDescuento']) + '</NaturalezaDescuento>')
                 sb.append('</Descuento>')
 
             sb.append('<SubTotal>' + str(v['subtotal']) + '</SubTotal>')
 
-            if inv.tipo_documento != 'FEE' or inv.tipo_documento != 'REP':
+            if inv.tipo_documento not in ['FEE', 'REP']:
                 if v['impuesto'][1]['codigo']=='01' and v['subtotal'] > 0:
                     sb.append('<BaseImponible>' + str(v['subtotal']) + '</BaseImponible>')
                 
@@ -584,8 +582,10 @@ def gen_xml_v43(inv, sale_conditions, total_servicio_gravado,
                             sb.append('</Exoneracion>')
                     sb.append('</Impuesto>')
 
-                sb.append('<ImpuestoAsumidoEmisorFabrica>' + str(0) + '</ImpuestoAsumidoEmisorFabrica>')
-                sb.append('<ImpuestoNeto>' + str(v['impuestoNeto']) + '</ImpuestoNeto>')
+                if inv.tipo_documento not in ['FEE','FEC','REP']:
+                    sb.append('<ImpuestoAsumidoEmisorFabrica>' + str(0) + '</ImpuestoAsumidoEmisorFabrica>')
+                if inv.tipo_documento != 'FEE':
+                    sb.append('<ImpuestoNeto>' + str(v['impuestoNeto']) + '</ImpuestoNeto>')
 
             sb.append('<MontoTotalLinea>' + str(v['montoTotalLinea']) + '</MontoTotalLinea>')
             sb.append('</LineaDetalle>')
