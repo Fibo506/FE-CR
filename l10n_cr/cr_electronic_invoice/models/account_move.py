@@ -1178,15 +1178,23 @@ class AccountInvoiceElectronic(models.Model):
 
                     reference_code_id = inv.reference_code_id
                     if (inv.invoice_id or inv.not_loaded_invoice) and reference_code_id and inv.reference_document_id:
+                        # if inv.invoice_id:
+                        #     if inv.invoice_id.number_electronic and inv.invoice_line_ids[0].product_id:
+                        #         numero_documento_referencia = inv.invoice_id.number_electronic
+                        #         fecha_emision_referencia = inv.invoice_id.date_issuance or inv.invoice_id.invoice_date.strftime("%Y-%m-%d") + "T12:00:00-06:00"
+                        #     else:
+                        #         numero_documento_referencia = inv.invoice_id and \
+                        #             re.sub('[^0-9]+', '', inv.invoice_id.sequence) or re.sub('[^0-9]+', '', inv.invoice_id.name)
+                        #         invoice_date = inv.invoice_id.invoice_date
+                        #         fecha_emision_referencia = invoice_date.strftime("%Y-%m-%d") + "T12:00:00-06:00"
                         if inv.invoice_id:
-                            if inv.invoice_id.number_electronic and inv.invoice_line_ids[0].product_id:
-                                numero_documento_referencia = inv.invoice_id.number_electronic
-                                fecha_emision_referencia = inv.invoice_id.date_issuance or inv.invoice_id.invoice_date.strftime("%Y-%m-%d") + "T12:00:00-06:00"
-                            else:
-                                numero_documento_referencia = inv.invoice_id and \
-                                    re.sub('[^0-9]+', '', inv.invoice_id.sequence) or re.sub('[^0-9]+', '', inv.invoice_id.name)
-                                invoice_date = inv.invoice_id.invoice_date
-                                fecha_emision_referencia = invoice_date.strftime("%Y-%m-%d") + "T12:00:00-06:00"
+                            if not inv.invoice_id.number_electronic:
+                                raise UserError(
+                                    "La factura referenciada no tiene clave electrónica. No se puede generar la nota.")
+
+                            numero_documento_referencia = inv.invoice_id.number_electronic
+                            fecha_emision_referencia = inv.invoice_id.date_issuance or (
+                                    inv.invoice_id.invoice_date.strftime("%Y-%m-%d") + "T12:00:00-06:00")
                         else:
                             numero_documento_referencia = inv.not_loaded_invoice
                             fecha_emision_referencia = inv.not_loaded_invoice_date.strftime("%Y-%m-%d")
