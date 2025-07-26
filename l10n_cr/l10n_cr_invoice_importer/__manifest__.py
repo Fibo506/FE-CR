@@ -6,6 +6,8 @@
     'category': 'Accounting/Accounting',
     'author': 'Singulary, CR Factura',
     'license': 'AGPL-3',
+    'price': 0,
+    'currency': 'USD',
     'website': 'https://singulary.online',
     'summary': 'Importador de Facturas Electronicas de Costa Rica',
 

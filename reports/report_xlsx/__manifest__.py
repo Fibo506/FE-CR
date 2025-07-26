@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # Copyright 2015 ACSONE SA/NV (<http://acsone.eu>)
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl.html).
 {
@@ -8,7 +9,9 @@
     "category": "Reporting",
     "version": "17.0.1.0.1",
     "development_status": "Mature",
-    "license": "AGPL-3",
+    'license': 'AGPL-3',
+    'price': 0,
+    'currency': 'USD',
     "external_dependencies": {"python": ["xlsxwriter", "xlrd"]},
     "depends": ["base", "web"],
     "demo": ["demo/report.xml"],

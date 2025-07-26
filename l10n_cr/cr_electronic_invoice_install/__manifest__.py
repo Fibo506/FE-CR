@@ -3,6 +3,8 @@
     'version': '17.0.0.0.0',
     'author': 'Singulary',
     'license': 'AGPL-3',
+    'price': 0,
+    'currency': 'USD',
     'website': 'https://singulary.online',
     'category': 'Accounting/Accounting',
     'description':

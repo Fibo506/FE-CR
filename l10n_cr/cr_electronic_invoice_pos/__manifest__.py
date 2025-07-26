@@ -1,8 +1,11 @@
+# -*- coding: utf-8 -*-
 {
     'name': 'Facturación electrónica Costa Rica POS',
     'version': '17.0.0.0.0',
     'author': 'Singulary',
     'license': 'AGPL-3',
+    'price': 0,
+    'currency': 'USD',
     'website': 'https://singulary.online',
     'category': 'Account',
     'description':

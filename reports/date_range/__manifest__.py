@@ -7,7 +7,9 @@
     "category": "Uncategorized",
     "website": "https://github.com/OCA/server-ux",
     "author": "ACSONE SA/NV, Odoo Community Association (OCA)",
-    "license": "LGPL-3",
+    'license': 'AGPL-3',
+    'price': 0,
+    'currency': 'USD',
     "installable": True,
     "depends": ["web"],
     "data": [
