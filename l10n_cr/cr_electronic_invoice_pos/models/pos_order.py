@@ -2,6 +2,7 @@
 import logging
 from odoo import models, fields, api, _
 from threading import Lock
+from odoo.exceptions import ValidationError
 lock = Lock()
 
 _logger = logging.getLogger(__name__)
