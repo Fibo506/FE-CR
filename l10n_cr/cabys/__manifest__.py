@@ -27,7 +27,7 @@
     'assets': {
         'web.assets_backend': [
             'web.core',
-            'web.ListController',            'cabys/static/src/js/cabys_import_button.js',
+            'web.ListController',
       ],
         'web.assets_qweb': [
             'cabys/static/src/xml/cabys_templates.xml',
