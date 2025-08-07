@@ -2375,6 +2375,14 @@ msgid "Total FE taxes"
 msgstr "Total Impuestos FE"
 
 #. module: cr_electronic_invoice
+#: model:ir.model.fields,field_description:cr_electronic_invoice.field_account_bank_statement_line__amount_discount_electronic_invoice
+#: model:ir.model.fields,field_description:cr_electronic_invoice.field_account_move__amount_discount_electronic_invoice
+#: model:ir.model.fields,field_description:cr_electronic_invoice.field_account_payment__amount_discount_electronic_invoice
+#: model_terms:ir.ui.view,arch_db:cr_electronic_invoice.report_invoice_document
+msgid "Discount Amount"
+msgstr "Monto de descuento"
+
+#. module: cr_electronic_invoice
 #: model:ir.model.fields,field_description:cr_electronic_invoice.field_account_move_line__total_tax
 msgid "Total Tax"
 msgstr "Total Impuestos"
