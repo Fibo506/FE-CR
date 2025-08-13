@@ -8,33 +8,19 @@
 
             <xpath expr="//field[@name='economic_activity_id']" position="after">
                 <field name="iva_condition"
-                       attrs="{
-                                'required': ['move_type', 'in', ['in_invoice']],
-                                'invisible': [('move_type', 'not in', ['in_invoice'])]
-                       }"/>
-
-
+                       required="move_type in ('in_invoice',)"
+                       invisible="move_type not in ('in_invoice',)"/>
                 <field name="company_activity_id"
-                       attrs="{
-                        'required': ['move_type', 'in', ['in_invoice', 'in_refund'],'tipo_documento', 'in', ['FE', 'FEC']],
-                        'invisible': [('move_type', 'not in', ['in_invoice', 'in_refund'])]
-                    }"
-                       options='{"no_open": True, "no_create": True}'
-                />
-
+                       required="move_type in ('in_invoice', 'in_refund') and tipo_documento in ('FE', 'FEC')"
+                       invisible="move_type not in ('in_invoice', 'in_refund')"
+                       options='{"no_open": True, "no_create": True}'/>
                 <field name="move_type"/>
             </xpath>
 
             <xpath expr="//field[@name='economic_activity_id']" position="attributes">
-                <attribute name="attrs">
-                    {
-                        "required": ["|", ("move_type", "in", ["out_invoice", "out_refund"]),
-                                     ("tipo_documento", "in", ["FE", "FEC"])],
-                        "invisible": ["|", ("move_type", "not in", ["out_invoice", "out_refund"]),
-                                      ("tipo_documento", "not in", ["FE", "FEC"])]
-                    }
-                </attribute>
-                <attribute name="options">{ "no_open": true, "no_create": true }</attribute>
+                <attribute name="required">move_type in ('out_invoice', 'out_refund') or tipo_documento in ('FE', 'FEC')</attribute>
+                <attribute name="invisible">move_type not in ('out_invoice', 'out_refund') and tipo_documento not in ('FE', 'FEC')</attribute>
+                <attribute name="options">{"no_open": true, "no_create": true}</attribute>
             </xpath>
 
         </field>
