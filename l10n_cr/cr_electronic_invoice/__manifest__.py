@@ -24,7 +24,7 @@
         'res_currency_cr_adapter',
         ],
     'data': [
-        #'data/account_tax_data.xml',
+        'data/account_tax_data.xml',
         'data/aut_ex_data.xml',
         'data/code_type_product_data.xml',
         'data/identification_type_data.xml',
