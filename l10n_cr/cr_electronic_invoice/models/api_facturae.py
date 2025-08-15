@@ -359,10 +359,12 @@ def gen_xml_v43(inv, sale_conditions, total_servicio_gravado,
                 # Se agrega el campo code en los métodos de pago de Odoo POS
                 payment_methods_id.append(str(payment.payment_method_id.sequence))
         cod_moneda = str(inv.company_id.currency_id.name)
+        invoice_ref = False
     else:
         payment_methods_id.append(str(inv.payment_methods_id.sequence))
         plazo_credito = str(inv.invoice_payment_term_id and inv.invoice_payment_term_id.line_ids[0].days or 0)
         cod_moneda = str(inv.currency_id.name)
+        invoice_ref = False
 
     if inv.tipo_documento == 'FEC':
         issuing_company = inv.partner_id
@@ -665,15 +667,18 @@ def gen_xml_v43(inv, sale_conditions, total_servicio_gravado,
 
     if tipo_documento_referencia and numero_documento_referencia and fecha_emision_referencia:
         sb.append('<InformacionReferencia>')
-        sb.append('<TipoDoc>' + str(tipo_documento_referencia) + '</TipoDoc>')
+        sb.append('<TipoDocIR>' + str(tipo_documento_referencia) + '</TipoDocIR>')
         sb.append('<Numero>' + str(numero_documento_referencia) + '</Numero>')
-        sb.append('<FechaEmision>' + fecha_emision_referencia + '</FechaEmision>')
+        sb.append('<FechaEmisionIR>' + str(fecha_emision_referencia) + '</FechaEmisionIR>')
         sb.append('<Codigo>' + str(codigo_referencia) + '</Codigo>')
         sb.append('<Razon>' + str(razon_referencia) + '</Razon>')
         sb.append('</InformacionReferencia>')
-    if invoice_comments:
+    if invoice_comments or invoice_ref:
         sb.append('<Otros>')
-        sb.append('<OtroTexto>' + str(invoice_comments) + '</OtroTexto>')
+        if invoice_comments:
+            sb.append('<OtroTexto>' + str(invoice_comments) + '</OtroTexto>')
+        if invoice_ref:
+            sb.append('<OtroContenido>' + str(invoice_ref) + '</OtroContenido>')
         sb.append('</Otros>')
 
     sb.append('</' + fe_enums.tagName[inv.tipo_documento] + '>')
