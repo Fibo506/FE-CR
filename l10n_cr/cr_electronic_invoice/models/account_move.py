@@ -1048,6 +1048,9 @@ class AccountInvoiceElectronic(models.Model):
                     total_mercaderia_gravado = 0.0
                     total_mercaderia_exento = 0.0
                     total_mercaderia_exonerado = 0.0
+                    #AP: Se agrego el total desgloce impuestos por que en la funcion gen_xml_v43 se agrego el argumento
+                    #Y como daba error de argumento de razon_referencia, hacia falta agregar la data de total desgloce aqui
+                    total_desgloce_impuesto = dict([])
                     total_descuento = 0.0
                     total_impuestos = 0.0
                     base_subtotal = 0.0
@@ -1182,6 +1185,18 @@ class AccountInvoiceElectronic(models.Model):
                                             'iva_tax_desc': taxes_lookup[i['id']]['iva_tax_desc'],
                                             'iva_tax_code': taxes_lookup[i['id']]['iva_tax_code'],
                                         }
+                                        # Se agrupan los impuestos segun el codigo para obtener el TotalDesgloceImpuesto
+                                        #AP: Se agrego if para total_desgloce impuesto, preguntar si se va a dejar o se va a eliminar
+                                        if tax['codigo'] in total_desgloce_impuesto:
+                                            if tax['iva_tax_code'] in total_desgloce_impuesto[tax['codigo']]:
+                                                total_desgloce_impuesto[tax['codigo']][tax['iva_tax_code']] += round(
+                                                    tax['monto'], 5)
+                                            else:
+                                                total_desgloce_impuesto[tax['codigo']][tax['iva_tax_code']] = round(
+                                                    tax['monto'], 5)
+                                        else:
+                                            total_desgloce_impuesto[tax['codigo']] = {
+                                                tax['iva_tax_code']: round(tax['monto'], 5)}
                                         # Se genera la exoneración si existe para este impuesto
                                         if _tax_exoneration:
                                             exoneration_percentage = taxes_lookup[i['id']]['exoneration_percentage']
@@ -1292,7 +1307,7 @@ class AccountInvoiceElectronic(models.Model):
                         total_servicio_exento, total_servicio_exonerado,
                         total_mercaderia_gravado, total_mercaderia_exento,
                         total_mercaderia_exonerado, total_otros_cargos, total_iva_devuelto, base_subtotal,
-                        total_impuestos, total_descuento, lines,
+                        total_impuestos, total_desgloce_impuesto, total_descuento, lines,
                         otros_cargos, currency_rate, invoice_comments,
                         tipo_documento_referencia, numero_documento_referencia,
                         fecha_emision_referencia, codigo_referencia, razon_referencia)
